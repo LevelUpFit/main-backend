@@ -10,18 +10,32 @@ import java.time.LocalDate;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
+@Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "user_id")
+    private int userid;
 
     @Column(nullable = false, unique = true)
     private String email;
 
-    private String password;
     private String nickname;
-    private LocalDate dob;
+
+    @Column(nullable = false)
+    private String dob;
+
+    @Column(nullable = false)
     private int level;
+
+    @Column(nullable = false)
     private String gender;
+
     private String profile;
+
+    @Column(nullable = false)
+    private String access_token;
+
+    @Column(nullable = false)
+    private String refresh_token;
 }

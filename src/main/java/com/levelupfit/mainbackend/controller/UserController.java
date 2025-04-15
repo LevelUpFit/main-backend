@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/user")
 public class UserController {
 
-    @PostMapping("/signin")
+    @PostMapping("/register")
     public ResponseEntity<String> signin(@RequestBody LoginRequestDTO loginRequestDTO) {
         return ResponseEntity.ok("success");
     }

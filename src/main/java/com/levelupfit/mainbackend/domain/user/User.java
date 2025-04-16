@@ -25,7 +25,7 @@ public class User {
     @Column(nullable = false)
     private String dob;
 
-    @Column(nullable = false)
+    @Column(name = "user_level", nullable = false)
     private int level;
 
     @Column(nullable = false)

@@ -13,6 +13,7 @@ import com.levelupfit.mainbackend.util.JwtUtils;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final UserMapper userMapper;
@@ -28,23 +30,14 @@ public class UserService {
     private final UserRepository userRepository;
     private final FormUserRepository formUserRepository;
 
-    public UserService(BCryptPasswordEncoder bCryptPasswordEncoder, UserMapper userMapper, FormUserMapper formUserMapper, JwtUtils jwtUtils, UserRepository userRepository, FormUserRepository formUserRepository) {
-        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-        this.userMapper = userMapper;
-        this.formUserMapper = formUserMapper;
-        this.jwtUtils = jwtUtils;
-        this.userRepository = userRepository;
-        this.formUserRepository = formUserRepository;
-    }
-
     //@Transactional은 데이터베이스 작업을 하나의 작업 단위로 묶어준다. (하나라도 오류 발생하면 오류남)
     //폼회원가입
     @Transactional
-    public boolean saveFormUser(FormUserDTO formUserDto, UserDTO userDto, HttpServletResponse response) {
+    public int saveFormUser(FormUserDTO formUserDto, UserDTO userDto, HttpServletResponse response) {
         boolean linked = false;
         try {
             //UserDTO existingUser = userRepository.existsByUserId(userDto.getUser_id());
-            boolean existingUser = userRepository.existsByUserid(userDto.getUser_id());
+            boolean existingUser = userRepository.existsByEmail(userDto.getEmail());
             if (!existingUser) { //신규 회원
                 String encodedPassword = bCryptPasswordEncoder.encode(formUserDto.getPwd());
                 String accessToken = jwtUtils.createAccessToken(Integer.toString(userDto.getUser_id()));
@@ -92,12 +85,14 @@ public class UserService {
 //                accessTokenCookie.setPath("/");
 //                response.addCookie(accessTokenCookie);
             } else {
-                throw new RuntimeException("이미 존재하는 사용자입니다.");
+                return 409;
+                //throw new RuntimeException("이미 존재하는 사용자입니다.");
             }
         } catch (Exception e) {
-            throw new RuntimeException("회원가입 처리 중 오류가 발생하였습니다.", e);
+            return 500;
+            //throw new RuntimeException("회원가입 처리 중 오류가 발생하였습니다.", e);
         }
-        return linked;
+        return 201;
     }
 
 

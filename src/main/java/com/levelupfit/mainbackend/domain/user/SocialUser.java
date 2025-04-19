@@ -2,6 +2,7 @@ package com.levelupfit.mainbackend.domain.user;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.relational.core.sql.In;
 
 @Entity
 @Getter
@@ -17,6 +18,8 @@ public class SocialUser {
 
     @Column(name="provider_type")
     private String providerType;
+
+    private String email;
 
     @OneToOne
     @MapsId // user_id를 외래키 + PK로 동시에 사용하는 경우

@@ -13,7 +13,7 @@ public class FormUser {
 
     @Id
     @Column(name = "user_id")
-    private Integer userId;  // user_id는 INT니까 Integer 사용
+    private int userId;  // user_id는 INT니까 Integer 사용
 
     @Column(name = "passwd", nullable = false)
     private String passwd;

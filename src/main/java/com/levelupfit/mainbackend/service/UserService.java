@@ -3,11 +3,13 @@ package com.levelupfit.mainbackend.service;
 import com.levelupfit.mainbackend.domain.user.FormUser;
 import com.levelupfit.mainbackend.domain.user.User;
 import com.levelupfit.mainbackend.dto.FormUserDTO;
+import com.levelupfit.mainbackend.dto.LoginRequestDTO;
 import com.levelupfit.mainbackend.dto.SocialUserDTO;
 import com.levelupfit.mainbackend.dto.UserDTO;
 import com.levelupfit.mainbackend.mapper.FormUserMapper;
 import com.levelupfit.mainbackend.mapper.UserMapper;
 import com.levelupfit.mainbackend.repository.FormUserRepository;
+import com.levelupfit.mainbackend.repository.SocialUserRepository;
 import com.levelupfit.mainbackend.repository.UserRepository;
 import com.levelupfit.mainbackend.util.JwtUtils;
 import jakarta.servlet.http.Cookie;
@@ -17,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,6 +32,7 @@ public class UserService {
     private final JwtUtils jwtUtils;
     private final UserRepository userRepository;
     private final FormUserRepository formUserRepository;
+    private final SocialUserRepository socialUserRepository;
 
     //@Transactional은 데이터베이스 작업을 하나의 작업 단위로 묶어준다. (하나라도 오류 발생하면 오류남)
     //폼회원가입
@@ -46,16 +50,20 @@ public class UserService {
 
                 User user = User.builder()
                         .email(userDto.getEmail())
-                        .dob(userDto.getDob())
+                        .nickname("헬린이1")
+                        .dob(LocalDate.parse(userDto.getDob()))
                         .level(userDto.getLevel())
                         .gender(userDto.getGender())
+                        .profile("test")
                         .access_token(accessToken)
                         .refresh_token(refreshToken)
                         .build();
 
-                formUserDto.setPwd(encodedPassword);
-                userDto.setAccessToken(accessToken);
-                userDto.setRefreshToken(refreshToken);
+
+                //너네 왜 있니...?
+//                formUserDto.setPwd(encodedPassword);
+//                userDto.setAccessToken(accessToken);
+//                userDto.setRefreshToken(refreshToken);
 
                 User saveduser = userRepository.save(user);
 
@@ -84,15 +92,40 @@ public class UserService {
 //                accessTokenCookie.setMaxAge(3600);
 //                accessTokenCookie.setPath("/");
 //                response.addCookie(accessTokenCookie);
-            } else {
+            }
+            else {
+                if(checkLinkForm(userDto.getEmail())){
+                    return 410;
+                }
                 return 409;
                 //throw new RuntimeException("이미 존재하는 사용자입니다.");
             }
         } catch (Exception e) {
-            return 500;
+            throw new RuntimeException("DB 저장 중 오류", e);
+            //return 500;
             //throw new RuntimeException("회원가입 처리 중 오류가 발생하였습니다.", e);
         }
         return 201;
+    }
+
+    //로그인 로직
+    public int login(LoginRequestDTO dto){
+        String userId = dto.getEmail();
+        String password = dto.getPassword();
+
+        if(userRepository.existsByEmail(userId)){
+            //이메일을 통한 user검색
+            User user = userRepository.findByEmail(userId);
+            //user_id를 통한 form_user 검색
+            FormUser formUser = formUserRepository.findByUserId(user.getUserid());
+            if(bCryptPasswordEncoder.matches(password,formUser.getPasswd())){
+                return 200;
+            } else {
+                return 401;
+            }
+        } else {
+            return 401;
+        }
     }
 
 
@@ -113,5 +146,10 @@ public class UserService {
         }
         String encodedPassword = bCryptPasswordEncoder.encode(newPassword);
         formUserMapper.findPassword(userId, encodedPassword);
+    }
+
+    //같은 email의 social회원이 있으면 참 없으면 거짓
+    public boolean checkLinkForm(String email){
+        return socialUserRepository.existsByEmail(email);
     }
 }

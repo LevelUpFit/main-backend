@@ -20,17 +20,19 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(nullable = true)
     private String nickname;
 
-    @Column(nullable = false)
-    private String dob;
+    @Column(nullable = true)
+    private LocalDate dob;
 
-    @Column(name = "user_level", nullable = false)
+    @Column(name = "user_level", nullable = true)
     private int level;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String gender;
 
+    @Column(nullable = true)
     private String profile;
 
     @Column(nullable = false)

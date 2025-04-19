@@ -27,9 +27,9 @@ public class JwtUtils {
     }
 
     // 엑세스 토큰 생성
-    public String createAccessToken(String username) {
+    public String createAccessToken(String email) {
         return Jwts.builder()
-                .setSubject(username)
+                .setSubject(email)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_VALIDITY))
                 .signWith(secretKey, SignatureAlgorithm.HS256) // SecretKey 객체 사용

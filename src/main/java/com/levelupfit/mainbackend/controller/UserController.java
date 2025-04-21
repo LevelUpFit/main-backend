@@ -94,7 +94,7 @@ public class UserController {
     }
 
     //카카오 로그인 처리가 이루어지는 곳
-    @GetMapping("/callback")
+    @PostMapping("/callback")
     public ResponseEntity<Map<String, String>> checkUser(@RequestParam("code") String code) {
         int result = kakaoService.handleKakaoLogin(code);
         Map<String, String> responseMap = new HashMap<>();

@@ -1,5 +1,6 @@
 package com.levelupfit.mainbackend.service;
 
+import com.levelupfit.mainbackend.domain.enums.ProviderTypeEnum;
 import com.levelupfit.mainbackend.domain.user.FormUser;
 import com.levelupfit.mainbackend.domain.user.SocialUser;
 import com.levelupfit.mainbackend.domain.user.User;
@@ -7,6 +8,7 @@ import com.levelupfit.mainbackend.repository.FormUserRepository;
 import com.levelupfit.mainbackend.repository.SocialUserRepository;
 import com.levelupfit.mainbackend.repository.UserRepository;
 import com.levelupfit.mainbackend.util.JwtUtils;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
@@ -111,7 +113,9 @@ public class KakaoService {
         }
     }
 
+
     //카카오 로그인 핸들링 accessToken -> userinfo -> email -> 신규/기존 회원 판별
+    @Transactional
     public int handleKakaoLogin(String code) {
         System.out.println("Authorization code: " + code);
         HashMap<String, String> result =   new HashMap<>();
@@ -161,7 +165,7 @@ public class KakaoService {
 
                 SocialUser socialUser = SocialUser.builder()
                         .user(saveduser) //여기 로직 손봐야함
-                        .providerType("KAKAO")
+                        .providerType(ProviderTypeEnum.KAKAO)
                         .email(emailstr)
                         .build();
 

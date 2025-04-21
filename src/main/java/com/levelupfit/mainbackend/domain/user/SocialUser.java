@@ -1,5 +1,6 @@
 package com.levelupfit.mainbackend.domain.user;
 
+import com.levelupfit.mainbackend.domain.enums.ProviderTypeEnum;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.relational.core.sql.In;
@@ -9,15 +10,17 @@ import org.springframework.data.relational.core.sql.In;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-@Table(name = "social-user")
+@Table(name = "social_user")
 public class SocialUser {
+
 
     @Id
     @Column(name="user_id")
     private Integer userId;  // user_id는 INT니까 Integer 사용
 
-    @Column(name="provider_type")
-    private String providerType;
+    @Column(name="provider_type", columnDefinition = "provider_type_enum")
+    @Enumerated(EnumType.STRING) //enum을 String으로 저장하기 위함 근데 type 에러나서 DB에 CAST 따로 만들어줌
+    private ProviderTypeEnum providerType;
 
     private String email;
 

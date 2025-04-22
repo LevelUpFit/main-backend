@@ -15,8 +15,10 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -33,9 +35,14 @@ public class UserService {
     private final FormUserRepository formUserRepository;
     private final SocialUserRepository socialUserRepository;
     private final UserStrengthRepository userStrengthRepository;
+    private final MinioService minioService;
+
+
+    @Value("${DEFAULT_PROFILE_URL}") //이건 배포하면서 수정해야함
+    private String DEFAULT_PROFILE_URL;
 
     //@Transactional은 데이터베이스 작업을 하나의 작업 단위로 묶어준다. (하나라도 오류 발생하면 오류남)
-    //폼회원가입
+    //폼회원가입 (테스트 완)
     @Transactional
     public int saveFormUser(FormUserDTO formUserDto, UserDTO userDto, HttpServletResponse response) {
         boolean linked = false;
@@ -53,7 +60,7 @@ public class UserService {
                         .dob(LocalDate.parse(userDto.getDob()))
                         .level(userDto.getLevel())
                         .gender(userDto.getGender())
-                        .profile("test")
+                        .profile("default.jpg")
                         .access_token(accessToken)
                         .refresh_token(refreshToken)
                         .build();
@@ -110,7 +117,7 @@ public class UserService {
     //로그인 로직
     public int login(LoginRequestDTO dto){
         String userId = dto.getEmail();
-        String password = dto.getPassword();
+        String password = dto.getPwd();
 
         if(userRepository.existsByEmail(userId)){
             //이메일을 통한 user검색
@@ -127,7 +134,7 @@ public class UserService {
         }
     }
 
-    //3대 운동 저장
+    //3대 운동 저장 (테스트 완)
     public boolean saveUserStrength(UserStrengthDTO dto){
         if(userStrengthRepository.existsByUserId(dto.getUserid())) return false;
         User user =  userRepository.findByUserid(dto.getUserid());
@@ -167,7 +174,7 @@ public class UserService {
         return socialUserRepository.existsByEmail(email);
     }
 
-    //유저 정보 조회
+    //유저 정보 조회 (테스트 완)
     public UserResponseDTO getInfo(int userid) {
         System.out.println("email " + userid);
         User user = userRepository.findByUserid(userid);
@@ -180,26 +187,32 @@ public class UserService {
         userDTO.setNickname(user.getNickname());
         userDTO.setDob(user.getDob().toString());
         userDTO.setGender(user.getGender());
-        userDTO.setProfile(user.getProfile());
+        userDTO.setProfile(DEFAULT_PROFILE_URL + user.getProfile());
         userDTO.setLevel(user.getLevel());
         userDTO.setAccessToken(user.getAccess_token());
 
         return userDTO;
     }
 
-    //유저 프로필 수정
+    //유저 프로필 수정 (테스트 완)
     @Transactional
-    public boolean updateProfile(int userId, UserDTO userDto) {
-        if(userDto.getProfile() == null){
+    public boolean updateProfile(int userId, MultipartFile file) {
+        User user = userRepository.findByUserid(userId);
+        if(user.getProfile().equals("default.jpg")){ //기본 프로필인지 확인
             return false;
         }
-        User user = userRepository.findByUserid(userId);
-        user.setProfile(userDto.getProfile()); //여기 수정 해야함 MinIO에 업로드 후 업로드 주소가 들어가야함
+        String profile = minioService.uploadFile("levelupfit-profile","",file); //프로필 사진 업로드
+        minioService.deleteFile("levelupfit-profile","",user.getProfile()); //기존 프로필 사진 삭제
 
+        if(profile.isEmpty() || profile.isBlank()) {
+            user.setProfile("default.jpg");
+            return false;
+        }
+        user.setProfile(profile);
         return true;
     }
 
-    //유저 닉네임 수정
+    //유저 닉네임 수정 (테스트 완)
     @Transactional
     public boolean updateNickname(int userId, String nickname) {
         if(nickname == null){
@@ -223,7 +236,7 @@ public class UserService {
         return true;
     }
 
-    //유저 3대 측정 수정
+    //유저 3대 측정 수정 (테스트 완)
     @Transactional
     public boolean updateStrength(UserStrengthDTO dto) {
         if(!userStrengthRepository.existsByUserId(dto.getUserid())) return false;
@@ -237,7 +250,7 @@ public class UserService {
         return true;
     }
 
-    //유저 운동 수준 변경
+    //유저 운동 수준 변경 (테스트 완)
     @Transactional
     public boolean updateLevel(int userId, int level) {
         if(level < 1 || level > 3){
@@ -248,4 +261,27 @@ public class UserService {
 
         return true;
     }
+
+    //계정 탈퇴 (테스트 완)
+    @Transactional
+    public boolean deleteUser(FormUserDTO dto) {
+        if(!userRepository.existsByEmail(dto.getUserId())) return false;
+        User user = userRepository.findByEmail(dto.getUserId());
+        if(userStrengthRepository.existsByUserId(user.getUserid())){
+            userStrengthRepository.deleteById(user.getUserid());
+        }
+        FormUser formUser = formUserRepository.findByUserId(user.getUserid());
+        String profile = user.getProfile();
+
+        formUserRepository.delete(formUser);
+        userRepository.delete(user);
+
+        if(!profile.equals(DEFAULT_PROFILE_URL+"default.jpg")){
+            minioService.deleteFile("levelupfit-profile","",profile);
+        }
+
+        return true;
+    }
+
+
 }

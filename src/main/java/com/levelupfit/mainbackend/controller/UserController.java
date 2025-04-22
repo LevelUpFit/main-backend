@@ -1,9 +1,13 @@
 package com.levelupfit.mainbackend.controller;
 
+import com.levelupfit.mainbackend.config.MinioConfig;
+import com.levelupfit.mainbackend.domain.user.FormUser;
 import com.levelupfit.mainbackend.domain.user.User;
 import com.levelupfit.mainbackend.domain.user.UserStrength;
 import com.levelupfit.mainbackend.dto.*;
 import com.levelupfit.mainbackend.service.KakaoService;
+import com.levelupfit.mainbackend.service.MinioService;
+import com.levelupfit.mainbackend.service.ObjectStorage;
 import com.levelupfit.mainbackend.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,7 +29,9 @@ public class UserController {
 
     private final UserService userService;
     private final KakaoService kakaoService;
+    private final MinioService minioService;
 
+    //form 회원가입 (테스트 완)
     @PostMapping("/register")
     public ResponseEntity<Map<String, String>> saveFormUser(@RequestBody FormInfoDTO formInfoDto, HttpServletResponse response) {
         if (SecurityContextHolder.getContext().getAuthentication() != null &&
@@ -36,7 +43,6 @@ public class UserController {
 
         FormUserDTO formUserDto = formInfoDto.getFormUserDto();
         UserDTO userDto = formInfoDto.getUserDto();
-        userDto.setProfile("https://test/tset/test.jpg");
 
         int signed = userService.saveFormUser(formUserDto, userDto, response);
 
@@ -66,6 +72,7 @@ public class UserController {
 
     }
 
+    //3대 운동 등록 (테스트 완)
     @PostMapping("/strength")
     public ResponseEntity<String> saveStrength(@RequestBody UserStrengthDTO dto, HttpServletResponse response) {
         if(userService.saveUserStrength(dto)){
@@ -124,7 +131,7 @@ public class UserController {
         };
     }
 
-    //유저 정보 조회
+    //유저 정보 조회 (테스트 완)
     @GetMapping("/getinfo/{userId}")
     public ResponseEntity<UserResponseDTO> getInfo(@PathVariable int userId){
         UserResponseDTO user = userService.getInfo(userId);
@@ -134,12 +141,15 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(user);
     }
 
-    @PatchMapping("/update/profile")
-    public ResponseEntity<Map<String, String>> updateFormUser(@RequestBody FormInfoDTO formInfoDto, HttpServletResponse response) {
+    //프로필 사진 변경 (테스트 완)
+    @PatchMapping("/profile")
+    public ResponseEntity<String> updateFormUser(@RequestParam MultipartFile profile, @RequestParam int userid) {
+        if(userService.updateProfile(userid,profile)) return ResponseEntity.status(HttpStatus.OK).body("프로필 변경");
 
-        return null;
+        return ResponseEntity.badRequest().body("오류");
     }
 
+    //운동 수준 변경 (테스트 완)
     @PatchMapping("/level")
     public ResponseEntity<String> updateLevel(@RequestBody UpdateLevelDTO dto) {
         if(userService.updateLevel(dto.getUserid(), dto.getLevel())){
@@ -149,6 +159,7 @@ public class UserController {
         return ResponseEntity.badRequest().body("오류");
     }
 
+    //닉네임 변경 (테스트 완)
     @PatchMapping("/nickname")
     public ResponseEntity<String> updateNickname(@RequestBody UpdateNicknameDTO dto) {
         if(userService.updateNickname(dto.getUserid(), dto.getNickname())){
@@ -157,12 +168,26 @@ public class UserController {
 
         return ResponseEntity.badRequest().body("오류");
     }
-    
+
+    //3대 운동 변경 (테스트 완)
     @PatchMapping("/strength")
     public ResponseEntity<String> updateStrength(@RequestBody UserStrengthDTO dto){
         if(userService.updateStrength(dto)){
             return ResponseEntity.ok("수정완료");
         }
+        return ResponseEntity.badRequest().body("오류");
+    }
+
+    //이미지 업로드 (테스트 완)
+    @PostMapping("/upload")
+    public void test(MultipartFile file) {
+        minioService.uploadFile("levelupfit-profile","",file);
+    }
+
+    //계정 탈퇴 (테스트 완)
+    @DeleteMapping("/delete")
+    public ResponseEntity<String> deleteUser(@RequestBody FormUserDTO dto) {
+        if(userService.deleteUser(dto)) return ResponseEntity.ok("삭제 완료");
         return ResponseEntity.badRequest().body("오류");
     }
 

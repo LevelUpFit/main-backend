@@ -1,6 +1,7 @@
 package com.levelupfit.mainbackend.controller;
 
 import com.levelupfit.mainbackend.domain.user.User;
+import com.levelupfit.mainbackend.domain.user.UserStrength;
 import com.levelupfit.mainbackend.dto.*;
 import com.levelupfit.mainbackend.service.KakaoService;
 import com.levelupfit.mainbackend.service.UserService;
@@ -65,6 +66,14 @@ public class UserController {
 
     }
 
+    @PostMapping("/strength")
+    public ResponseEntity<String> saveStrength(@RequestBody UserStrengthDTO dto, HttpServletResponse response) {
+        if(userService.saveUserStrength(dto)){
+            return ResponseEntity.status(HttpStatus.OK).body("생성 완료");
+        }
+        return ResponseEntity.badRequest().body("오류");
+    }
+
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequestDTO dto, HttpServletResponse response){
 
@@ -119,12 +128,42 @@ public class UserController {
     @GetMapping("/getinfo/{userId}")
     public ResponseEntity<UserResponseDTO> getInfo(@PathVariable int userId){
         UserResponseDTO user = userService.getInfo(userId);
+        if(user == null){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
         return ResponseEntity.status(HttpStatus.OK).body(user);
     }
 
-    @PatchMapping("/update")
+    @PatchMapping("/update/profile")
     public ResponseEntity<Map<String, String>> updateFormUser(@RequestBody FormInfoDTO formInfoDto, HttpServletResponse response) {
 
+        return null;
+    }
+
+    @PatchMapping("/level")
+    public ResponseEntity<String> updateLevel(@RequestBody UpdateLevelDTO dto) {
+        if(userService.updateLevel(dto.getUserid(), dto.getLevel())){
+            return ResponseEntity.ok("수정 완료");
+        }
+
+        return ResponseEntity.badRequest().body("오류");
+    }
+
+    @PatchMapping("/nickname")
+    public ResponseEntity<String> updateNickname(@RequestBody UpdateNicknameDTO dto) {
+        if(userService.updateNickname(dto.getUserid(), dto.getNickname())){
+            return ResponseEntity.ok("수정 완료");
+        }
+
+        return ResponseEntity.badRequest().body("오류");
+    }
+    
+    @PatchMapping("/strength")
+    public ResponseEntity<String> updateStrength(@RequestBody UserStrengthDTO dto){
+        if(userService.updateStrength(dto)){
+            return ResponseEntity.ok("수정완료");
+        }
+        return ResponseEntity.badRequest().body("오류");
     }
 
 

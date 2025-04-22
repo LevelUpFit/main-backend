@@ -2,12 +2,14 @@ package com.levelupfit.mainbackend.service;
 
 import com.levelupfit.mainbackend.domain.user.FormUser;
 import com.levelupfit.mainbackend.domain.user.User;
+import com.levelupfit.mainbackend.domain.user.UserStrength;
 import com.levelupfit.mainbackend.dto.*;
 import com.levelupfit.mainbackend.mapper.FormUserMapper;
 import com.levelupfit.mainbackend.mapper.UserMapper;
 import com.levelupfit.mainbackend.repository.FormUserRepository;
 import com.levelupfit.mainbackend.repository.SocialUserRepository;
 import com.levelupfit.mainbackend.repository.UserRepository;
+import com.levelupfit.mainbackend.repository.UserStrengthRepository;
 import com.levelupfit.mainbackend.util.JwtUtils;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -30,6 +32,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final FormUserRepository formUserRepository;
     private final SocialUserRepository socialUserRepository;
+    private final UserStrengthRepository userStrengthRepository;
 
     //@Transactional은 데이터베이스 작업을 하나의 작업 단위로 묶어준다. (하나라도 오류 발생하면 오류남)
     //폼회원가입
@@ -37,7 +40,6 @@ public class UserService {
     public int saveFormUser(FormUserDTO formUserDto, UserDTO userDto, HttpServletResponse response) {
         boolean linked = false;
         try {
-            //UserDTO existingUser = userRepository.existsByUserId(userDto.getUser_id());
             boolean existingUser = userRepository.existsByEmail(userDto.getEmail());
             if (!existingUser) { //신규 회원
                 String encodedPassword = bCryptPasswordEncoder.encode(formUserDto.getPwd());
@@ -125,6 +127,21 @@ public class UserService {
         }
     }
 
+    //3대 운동 저장
+    public boolean saveUserStrength(UserStrengthDTO dto){
+        if(userStrengthRepository.existsByUserId(dto.getUserid())) return false;
+        User user =  userRepository.findByUserid(dto.getUserid());
+        UserStrength userStrength = UserStrength.builder()
+                .user(user)
+                .benchPress(dto.getBenchPress())
+                .deadLift(dto.getDeadLift())
+                .squat(dto.getSquat())
+                .build();
+
+        userStrengthRepository.save(userStrength);
+
+        return true;
+    }
 
     //리프레시토큰찾기
     public UserDTO findByRefreshToken(String refreshToken) {
@@ -154,6 +171,9 @@ public class UserService {
     public UserResponseDTO getInfo(int userid) {
         System.out.println("email " + userid);
         User user = userRepository.findByUserid(userid);
+        if(user == null){
+            return null;
+        }
         UserResponseDTO userDTO = new UserResponseDTO();
         userDTO.setUser_id(user.getUserid());
         userDTO.setEmail(user.getEmail());
@@ -167,10 +187,65 @@ public class UserService {
         return userDTO;
     }
 
-    //유저 정보 수정
+    //유저 프로필 수정
     @Transactional
-    public void updateUserInfo(int userId, UserDTO userDto) {
+    public boolean updateProfile(int userId, UserDTO userDto) {
+        if(userDto.getProfile() == null){
+            return false;
+        }
         User user = userRepository.findByUserid(userId);
-        user.set
+        user.setProfile(userDto.getProfile()); //여기 수정 해야함 MinIO에 업로드 후 업로드 주소가 들어가야함
+
+        return true;
+    }
+
+    //유저 닉네임 수정
+    @Transactional
+    public boolean updateNickname(int userId, String nickname) {
+        if(nickname == null){
+            return false;
+        }
+        User user = userRepository.findByUserid(userId);
+        user.setNickname(nickname);
+
+        return true;
+    }
+
+    //유저 비밀번호 변경 (코드 짜야함)
+    @Transactional
+    public boolean updatePassword(int userId, UserDTO userDto) {
+        if(userDto.getAccessToken() == null){
+            return false;
+        }
+        User user = userRepository.findByUserid(userId);
+        user.setNickname(userDto.getNickname());
+
+        return true;
+    }
+
+    //유저 3대 측정 수정
+    @Transactional
+    public boolean updateStrength(UserStrengthDTO dto) {
+        if(!userStrengthRepository.existsByUserId(dto.getUserid())) return false;
+
+        User user = userRepository.findByUserid(dto.getUserid());
+        UserStrength userStrength = userStrengthRepository.findByUserId(dto.getUserid());
+        userStrength.setBenchPress(dto.getBenchPress());
+        userStrength.setDeadLift(dto.getDeadLift());
+        userStrength.setSquat(dto.getSquat());
+
+        return true;
+    }
+
+    //유저 운동 수준 변경
+    @Transactional
+    public boolean updateLevel(int userId, int level) {
+        if(level < 1 || level > 3){
+            return false;
+        }
+        User user = userRepository.findByUserid(userId);
+        user.setLevel(level);
+
+        return true;
     }
 }

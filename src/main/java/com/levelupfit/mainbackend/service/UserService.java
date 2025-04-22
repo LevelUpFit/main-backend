@@ -2,10 +2,7 @@ package com.levelupfit.mainbackend.service;
 
 import com.levelupfit.mainbackend.domain.user.FormUser;
 import com.levelupfit.mainbackend.domain.user.User;
-import com.levelupfit.mainbackend.dto.FormUserDTO;
-import com.levelupfit.mainbackend.dto.LoginRequestDTO;
-import com.levelupfit.mainbackend.dto.SocialUserDTO;
-import com.levelupfit.mainbackend.dto.UserDTO;
+import com.levelupfit.mainbackend.dto.*;
 import com.levelupfit.mainbackend.mapper.FormUserMapper;
 import com.levelupfit.mainbackend.mapper.UserMapper;
 import com.levelupfit.mainbackend.repository.FormUserRepository;
@@ -151,5 +148,29 @@ public class UserService {
     //같은 email의 social회원이 있으면 참 없으면 거짓
     public boolean checkLinkForm(String email){
         return socialUserRepository.existsByEmail(email);
+    }
+
+    //유저 정보 조회
+    public UserResponseDTO getInfo(int userid) {
+        System.out.println("email " + userid);
+        User user = userRepository.findByUserid(userid);
+        UserResponseDTO userDTO = new UserResponseDTO();
+        userDTO.setUser_id(user.getUserid());
+        userDTO.setEmail(user.getEmail());
+        userDTO.setNickname(user.getNickname());
+        userDTO.setDob(user.getDob().toString());
+        userDTO.setGender(user.getGender());
+        userDTO.setProfile(user.getProfile());
+        userDTO.setLevel(user.getLevel());
+        userDTO.setAccessToken(user.getAccess_token());
+
+        return userDTO;
+    }
+
+    //유저 정보 수정
+    @Transactional
+    public void updateUserInfo(int userId, UserDTO userDto) {
+        User user = userRepository.findByUserid(userId);
+        user.set
     }
 }

@@ -1,5 +1,6 @@
 package com.levelupfit.mainbackend.controller;
 
+import com.levelupfit.mainbackend.domain.user.User;
 import com.levelupfit.mainbackend.dto.*;
 import com.levelupfit.mainbackend.service.KakaoService;
 import com.levelupfit.mainbackend.service.UserService;
@@ -113,4 +114,18 @@ public class UserController {
             }
         };
     }
+
+    //유저 정보 조회
+    @GetMapping("/getinfo/{userId}")
+    public ResponseEntity<UserResponseDTO> getInfo(@PathVariable int userId){
+        UserResponseDTO user = userService.getInfo(userId);
+        return ResponseEntity.status(HttpStatus.OK).body(user);
+    }
+
+    @PatchMapping("/update")
+    public ResponseEntity<Map<String, String>> updateFormUser(@RequestBody FormInfoDTO formInfoDto, HttpServletResponse response) {
+
+    }
+
+
 }

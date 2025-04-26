@@ -21,9 +21,9 @@ public class MinioConfig {
     @Value("${MINIO_URL}") //이건 배포하면서 수정해야함
     private String MinIO_URL;
     
-    private String accessKey = MinIO_Access_key;
-    private String secretKey = MinIO_Secret_key;
-    private String url = MinIO_URL;
+    private String accessKey = "";
+    private String secretKey = "?";
+    private String url = "/";
     private MinioClient minioClient;
 
 

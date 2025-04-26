@@ -3,7 +3,7 @@ package com.levelupfit.mainbackend.dto;
 import lombok.Data;
 
 @Data
-public class UserDTO {
+public class UserResponseDTO {
     private int user_id;
     private String email;
     private String nickname;
@@ -12,5 +12,4 @@ public class UserDTO {
     private String gender;
     private String profile;
     private String accessToken;
-    private String refreshToken;
 }

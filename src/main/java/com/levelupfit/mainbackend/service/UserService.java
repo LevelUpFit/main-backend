@@ -198,11 +198,10 @@ public class UserService {
     @Transactional
     public boolean updateProfile(int userId, MultipartFile file) {
         User user = userRepository.findByUserid(userId);
-        if(user.getProfile().equals("default.jpg")){ //기본 프로필인지 확인
-            return false;
+        if(!user.getProfile().equals("default.jpg")){ //기본 프로필인지 확인
+            minioService.deleteFile("levelupfit-profile","",user.getProfile()); //기존 프로필 사진 삭제
         }
         String profile = minioService.uploadFile("levelupfit-profile","",file); //프로필 사진 업로드
-        minioService.deleteFile("levelupfit-profile","",user.getProfile()); //기존 프로필 사진 삭제
 
         if(profile.isEmpty() || profile.isBlank()) {
             user.setProfile("default.jpg");

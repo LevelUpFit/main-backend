@@ -21,19 +21,17 @@ public class MinioConfig {
     @Value("${MINIO_URL}") //이건 배포하면서 수정해야함
     private String MinIO_URL;
     
-    private String accessKey = "";
-    private String secretKey = "?";
-    private String url = "/";
+
     private MinioClient minioClient;
 
 
     public MinioClient initMinioClient(){
-        if (accessKey == null || secretKey == null || url == null) {
+        if (MinIO_Access_key == null || MinIO_Secret_key == null || MinIO_URL == null) {
             throw new IllegalStateException("MinIO 환경변수가 누락되었습니다.");
         }
         minioClient = MinioClient.builder()
-                .endpoint(url)
-                .credentials(accessKey,secretKey)
+                .endpoint(MinIO_URL)
+                .credentials(MinIO_Access_key,MinIO_Secret_key)
                 .build();
         try{
             minioClient.ignoreCertCheck();

@@ -34,6 +34,11 @@ public class Routines {
     @Column(name = "created_at")
     private LocalDate createdAt;
 
-    private String iamge; // 오타 아님? image?
+    @PrePersist //save() 할 때 불러와짐
+    public void setCreatedAt() {
+        this.createdAt = LocalDate.now(); // 현재 시간 설정 yyyy-mm-dd
+    }
+
+    private String image;
 
 }

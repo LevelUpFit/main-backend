@@ -4,6 +4,7 @@ import com.levelupfit.mainbackend.domain.user.FormUser;
 import com.levelupfit.mainbackend.domain.user.User;
 import com.levelupfit.mainbackend.domain.user.UserStrength;
 import com.levelupfit.mainbackend.dto.*;
+import com.levelupfit.mainbackend.dto.user.response.LoginResponseDTO;
 import com.levelupfit.mainbackend.mapper.FormUserMapper;
 import com.levelupfit.mainbackend.mapper.UserMapper;
 import com.levelupfit.mainbackend.repository.FormUserRepository;
@@ -115,9 +116,11 @@ public class UserService {
     }
 
     //로그인 로직
-    public int login(LoginRequestDTO dto){
+    public LoginResponseDTO login(LoginRequestDTO dto){
         String userId = dto.getEmail();
         String password = dto.getPwd();
+
+        LoginResponseDTO loginResponseDTO = new LoginResponseDTO();
 
         if(userRepository.existsByEmail(userId)){
             //이메일을 통한 user검색
@@ -125,12 +128,22 @@ public class UserService {
             //user_id를 통한 form_user 검색
             FormUser formUser = formUserRepository.findByUserId(user.getUserid());
             if(bCryptPasswordEncoder.matches(password,formUser.getPasswd())){
-                return 200;
+                loginResponseDTO.setCode(200);
+                loginResponseDTO.setMessage("로그인 성공");
+                loginResponseDTO.setUserId(user.getUserid());
+                loginResponseDTO.setEmail(user.getEmail());
+                loginResponseDTO.setNickname(user.getNickname());
+                loginResponseDTO.setProfile(user.getProfile());
+                return loginResponseDTO;
             } else {
-                return 401;
+                loginResponseDTO.setCode(401);
+                loginResponseDTO.setMessage("아이디 혹은 비밀번호가 일치하지 않습니다.");
+                return loginResponseDTO;
             }
         } else {
-            return 401;
+            loginResponseDTO.setCode(401);
+            loginResponseDTO.setMessage("아이디 혹은 비밀번호가 일치하지 않습니다.");
+            return loginResponseDTO;
         }
     }
 

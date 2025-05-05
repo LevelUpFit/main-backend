@@ -5,7 +5,9 @@ import com.levelupfit.mainbackend.domain.user.FormUser;
 import com.levelupfit.mainbackend.domain.user.User;
 import com.levelupfit.mainbackend.domain.user.UserStrength;
 import com.levelupfit.mainbackend.dto.*;
+import com.levelupfit.mainbackend.dto.user.request.ChangePwdRequestDTO;
 import com.levelupfit.mainbackend.dto.user.response.LoginResponseDTO;
+import com.levelupfit.mainbackend.dto.user.response.MessageResponseDTO;
 import com.levelupfit.mainbackend.service.KakaoService;
 import com.levelupfit.mainbackend.service.MinioService;
 import com.levelupfit.mainbackend.service.ObjectStorage;
@@ -201,5 +203,22 @@ public class UserController {
         return ResponseEntity.badRequest().body("오류");
     }
 
+    @PatchMapping("/password")
+    public ResponseEntity<MessageResponseDTO> updatePassword(@RequestBody ChangePwdRequestDTO dto) {
+        MessageResponseDTO result = userService.updatePassword(dto);
+        int code = result.getCode();
+        switch (code) {
+            case 200 -> {
+                return ResponseEntity.status(HttpStatus.OK).body(result);
+            }
+            case 401 -> {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
+            }
+            default -> {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+            }
+        }
+
+    }
 
 }

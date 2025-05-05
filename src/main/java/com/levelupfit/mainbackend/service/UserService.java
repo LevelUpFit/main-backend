@@ -4,6 +4,9 @@ import com.levelupfit.mainbackend.domain.user.FormUser;
 import com.levelupfit.mainbackend.domain.user.User;
 import com.levelupfit.mainbackend.domain.user.UserStrength;
 import com.levelupfit.mainbackend.dto.*;
+import com.levelupfit.mainbackend.dto.user.request.ChangePwdRequestDTO;
+import com.levelupfit.mainbackend.dto.user.response.LoginResponseDTO;
+import com.levelupfit.mainbackend.dto.user.response.MessageResponseDTO;
 import com.levelupfit.mainbackend.mapper.FormUserMapper;
 import com.levelupfit.mainbackend.mapper.UserMapper;
 import com.levelupfit.mainbackend.repository.FormUserRepository;
@@ -41,6 +44,12 @@ public class UserService {
     @Value("${DEFAULT_PROFILE_URL}") //이건 배포하면서 수정해야함
     private String DEFAULT_PROFILE_URL;
 
+    //이메일 중복 체크
+    public boolean checkEmail(String email) {
+        System.out.println(email);
+        return !userRepository.existsByEmail(email);
+    }
+
     //@Transactional은 데이터베이스 작업을 하나의 작업 단위로 묶어준다. (하나라도 오류 발생하면 오류남)
     //폼회원가입 (테스트 완)
     @Transactional
@@ -65,11 +74,6 @@ public class UserService {
                         .refresh_token(refreshToken)
                         .build();
 
-
-                //너네 왜 있니...?
-//                formUserDto.setPwd(encodedPassword);
-//                userDto.setAccessToken(accessToken);
-//                userDto.setRefreshToken(refreshToken);
 
                 User saveduser = userRepository.save(user);
 
@@ -115,22 +119,34 @@ public class UserService {
     }
 
     //로그인 로직
-    public int login(LoginRequestDTO dto){
-        String userId = dto.getEmail();
+    public LoginResponseDTO login(LoginRequestDTO dto){
+        String userEmail = dto.getEmail();
         String password = dto.getPwd();
 
-        if(userRepository.existsByEmail(userId)){
+        LoginResponseDTO loginResponseDTO = new LoginResponseDTO();
+
+        if(userRepository.existsByEmail(userEmail)){
             //이메일을 통한 user검색
-            User user = userRepository.findByEmail(userId);
+            User user = userRepository.findByEmail(userEmail);
             //user_id를 통한 form_user 검색
             FormUser formUser = formUserRepository.findByUserId(user.getUserid());
             if(bCryptPasswordEncoder.matches(password,formUser.getPasswd())){
-                return 200;
+                loginResponseDTO.setCode(200);
+                loginResponseDTO.setMessage("로그인 성공");
+                loginResponseDTO.setUserId(user.getUserid());
+                loginResponseDTO.setEmail(user.getEmail());
+                loginResponseDTO.setNickname(user.getNickname());
+                loginResponseDTO.setProfile(user.getProfile());
+                return loginResponseDTO;
             } else {
-                return 401;
+                loginResponseDTO.setCode(401);
+                loginResponseDTO.setMessage("아이디 혹은 비밀번호가 일치하지 않습니다.");
+                return loginResponseDTO;
             }
         } else {
-            return 401;
+            loginResponseDTO.setCode(401);
+            loginResponseDTO.setMessage("아이디 혹은 비밀번호가 일치하지 않습니다.");
+            return loginResponseDTO;
         }
     }
 
@@ -223,16 +239,29 @@ public class UserService {
         return true;
     }
 
-    //유저 비밀번호 변경 (코드 짜야함)
+    //유저 비밀번호 변경 (개발중)
     @Transactional
-    public boolean updatePassword(int userId, UserDTO userDto) {
-        if(userDto.getAccessToken() == null){
-            return false;
-        }
-        User user = userRepository.findByUserid(userId);
-        user.setNickname(userDto.getNickname());
+    public MessageResponseDTO updatePassword(ChangePwdRequestDTO dto){
+        int userId = dto.getUserId();
+        String oldPassword = dto.getOldPassword();
+        String newPassword = dto.getNewPassword();
 
-        return true;
+        MessageResponseDTO result = new MessageResponseDTO();
+        if(userRepository.existsByUserid(userId)){
+            User user = userRepository.findByUserid(userId);
+            FormUser formUser = formUserRepository.findByUserId(user.getUserid());
+            if(bCryptPasswordEncoder.matches(oldPassword,formUser.getPasswd())){ //비밀번호 확인
+                String encodedPassword = bCryptPasswordEncoder.encode(newPassword);
+                formUser.setPasswd(encodedPassword);
+                result.setCode(200);
+                result.setMessage("비밀번호 변경이 완료되었습니다.");
+                return result;
+            }
+        }
+
+        result.setCode(401);
+        result.setMessage("비밀번호 변경 중 오류가 발생했습니다.");
+        return result;
     }
 
     //유저 3대 측정 수정 (테스트 완)
@@ -281,6 +310,7 @@ public class UserService {
 
         return true;
     }
+
 
 
 }

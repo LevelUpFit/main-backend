@@ -5,6 +5,9 @@ import com.levelupfit.mainbackend.domain.user.FormUser;
 import com.levelupfit.mainbackend.domain.user.User;
 import com.levelupfit.mainbackend.domain.user.UserStrength;
 import com.levelupfit.mainbackend.dto.*;
+import com.levelupfit.mainbackend.dto.user.request.ChangePwdRequestDTO;
+import com.levelupfit.mainbackend.dto.user.response.LoginResponseDTO;
+import com.levelupfit.mainbackend.dto.user.response.MessageResponseDTO;
 import com.levelupfit.mainbackend.service.KakaoService;
 import com.levelupfit.mainbackend.service.MinioService;
 import com.levelupfit.mainbackend.service.ObjectStorage;
@@ -30,6 +33,19 @@ public class UserController {
     private final UserService userService;
     private final KakaoService kakaoService;
     private final MinioService minioService;
+
+    @PostMapping("/checkEmail")
+    public ResponseEntity<Map<String, String>> checkEmail(@RequestBody CheckEmailDTO email) {
+        boolean userExists = userService.checkEmail(email.getEmail());
+        Map<String, String> responseMap = new HashMap<>();
+        if (userExists) {
+            responseMap.put("message", "회원가입 가능");
+            return ResponseEntity.status(HttpStatus.OK).body(responseMap);
+        } else {
+            responseMap.put("message", "중복 이메일");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseMap);
+        }
+    }
 
     //form 회원가입 (테스트 완)
     @PostMapping("/register")
@@ -82,25 +98,21 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequestDTO dto, HttpServletResponse response){
+    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO dto, HttpServletResponse response){
 
-        int login = userService.login(dto);
-
-        Map<String, String> responseMap = new HashMap<>();
-        return switch (login) {
+        LoginResponseDTO responsedto = userService.login(dto);
+        int code = responsedto.getCode();
+        switch (code) {
             case 200 -> {
-                responseMap.put("message", "로그인 성공");
-                yield ResponseEntity.status(HttpStatus.OK).body(responseMap);
+                return ResponseEntity.status(HttpStatus.OK).body(responsedto);
             }
             case 401 -> {
-                responseMap.put("message", "아이디 혹은 비밀번호가 일치하지 않습니다.");
-                yield ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseMap);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responsedto);
             }
             default -> {
-                responseMap.put("message", "정의되지 않은 오류가 발생했습니다.");
-                yield ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseMap);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responsedto);
             }
-        };
+        }
     }
 
     //카카오 로그인 페이지 처리
@@ -191,5 +203,22 @@ public class UserController {
         return ResponseEntity.badRequest().body("오류");
     }
 
+    @PatchMapping("/password")
+    public ResponseEntity<MessageResponseDTO> updatePassword(@RequestBody ChangePwdRequestDTO dto) {
+        MessageResponseDTO result = userService.updatePassword(dto);
+        int code = result.getCode();
+        switch (code) {
+            case 200 -> {
+                return ResponseEntity.status(HttpStatus.OK).body(result);
+            }
+            case 401 -> {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
+            }
+            default -> {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+            }
+        }
+
+    }
 
 }

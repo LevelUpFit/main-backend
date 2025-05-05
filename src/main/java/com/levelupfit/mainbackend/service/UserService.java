@@ -41,6 +41,11 @@ public class UserService {
     @Value("${DEFAULT_PROFILE_URL}") //이건 배포하면서 수정해야함
     private String DEFAULT_PROFILE_URL;
 
+    public boolean checkEmail(String email) {
+        System.out.println(email);
+        return !userRepository.existsByEmail(email);
+    }
+
     //@Transactional은 데이터베이스 작업을 하나의 작업 단위로 묶어준다. (하나라도 오류 발생하면 오류남)
     //폼회원가입 (테스트 완)
     @Transactional
@@ -65,11 +70,6 @@ public class UserService {
                         .refresh_token(refreshToken)
                         .build();
 
-
-                //너네 왜 있니...?
-//                formUserDto.setPwd(encodedPassword);
-//                userDto.setAccessToken(accessToken);
-//                userDto.setRefreshToken(refreshToken);
 
                 User saveduser = userRepository.save(user);
 

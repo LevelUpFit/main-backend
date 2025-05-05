@@ -31,6 +31,19 @@ public class UserController {
     private final KakaoService kakaoService;
     private final MinioService minioService;
 
+    @PostMapping("/checkEmail")
+    public ResponseEntity<Map<String, String>> checkEmail(@RequestBody CheckEmailDTO email) {
+        boolean userExists = userService.checkEmail(email.getEmail());
+        Map<String, String> responseMap = new HashMap<>();
+        if (userExists) {
+            responseMap.put("message", "회원가입 가능");
+            return ResponseEntity.status(HttpStatus.OK).body(responseMap);
+        } else {
+            responseMap.put("message", "중복 이메일");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseMap);
+        }
+    }
+
     //form 회원가입 (테스트 완)
     @PostMapping("/register")
     public ResponseEntity<Map<String, String>> saveFormUser(@RequestBody FormInfoDTO formInfoDto, HttpServletResponse response) {

@@ -4,7 +4,7 @@ FROM gradle:8.5-jdk17 AS build
 WORKDIR /app
 
 # 캐시 최적화용: 의존성 먼저 복사
-COPY build.gradle.kts settings.gradle.kts ./
+COPY build.gradle settings.gradle ./
 COPY gradle gradle
 RUN gradle dependencies || true
 

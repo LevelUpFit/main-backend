@@ -13,11 +13,13 @@ import com.levelupfit.mainbackend.service.MinioService;
 import com.levelupfit.mainbackend.service.ObjectStorage;
 import com.levelupfit.mainbackend.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -35,7 +37,10 @@ public class UserController {
     private final MinioService minioService;
 
     @PostMapping("/checkEmail")
-    public ResponseEntity<Map<String, String>> checkEmail(@RequestBody CheckEmailDTO email) {
+    public ResponseEntity<?> checkEmail(@Valid @RequestBody CheckEmailDTO email, BindingResult result) {
+        if (result.hasErrors()) {
+            return ResponseEntity.badRequest().body(result.getAllErrors().get(0).getDefaultMessage());
+        }
         boolean userExists = userService.checkEmail(email.getEmail());
         Map<String, String> responseMap = new HashMap<>();
         if (userExists) {

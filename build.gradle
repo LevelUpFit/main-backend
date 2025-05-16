@@ -47,6 +47,10 @@ dependencies {
 
     //MinIO
     implementation 'io.minio:minio:8.5.10'
+
+    //validation
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
 }
 
 tasks.named('test') {

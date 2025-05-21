@@ -1,6 +1,6 @@
 package com.levelupfit.mainbackend.util;
 
-import com.levelupfit.mainbackend.dto.UserDTO;
+import com.levelupfit.mainbackend.dto.user.UserDTO;
 import io.jsonwebtoken.*;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;

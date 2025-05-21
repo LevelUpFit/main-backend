@@ -1,4 +1,4 @@
-package com.levelupfit.mainbackend.dto;
+package com.levelupfit.mainbackend.dto.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

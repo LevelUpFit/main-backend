@@ -1,4 +1,4 @@
-package com.levelupfit.mainbackend.dto;
+package com.levelupfit.mainbackend.dto.user;
 
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;

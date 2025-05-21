@@ -1,7 +1,7 @@
 package com.levelupfit.mainbackend.repository;
 
 import com.levelupfit.mainbackend.domain.user.FormUser;
-import com.levelupfit.mainbackend.dto.UserDTO;
+import com.levelupfit.mainbackend.dto.user.UserDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface FormUserRepository extends JpaRepository<FormUser, Integer> {

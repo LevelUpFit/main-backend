@@ -1,6 +1,6 @@
 package com.levelupfit.mainbackend.mapper;
 
-import com.levelupfit.mainbackend.dto.FormUserDTO;
+import com.levelupfit.mainbackend.dto.user.FormUserDTO;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper

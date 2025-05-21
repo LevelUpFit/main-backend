@@ -2,7 +2,7 @@ package com.levelupfit.mainbackend.service;
 
 import com.levelupfit.mainbackend.domain.exercise.Exercise;
 import com.levelupfit.mainbackend.dto.ApiResponse;
-import com.levelupfit.mainbackend.dto.exercise.ExerciseDTO;
+import com.levelupfit.mainbackend.dto.exercise.request.ExerciseCreateRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -10,15 +10,21 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ExerciseService {
 
-    public ApiResponse<ExerciseDTO> ExerciseCreate(ExerciseDTO exerciseDTO) {
+    public ApiResponse<ExerciseCreateRequest> ExerciseCreate(ExerciseCreateRequest exerciseDTO) {
         //create 구현중
-        Exercise exercise = Exercise.builder()
-                .name(exerciseDTO.getName())
-                .description(exerciseDTO.getDescription())
-                .thumbnailUrl(exerciseDTO.getThumbnailUrl())
-                .targetMuscle(exerciseDTO.getTargetMuscle())
-                .feedbackAvailable(false)
-                .build();
+        try{
+            Exercise exercise = Exercise.builder()
+                    .name(exerciseDTO.getName())
+                    .description(exerciseDTO.getDescription())
+                    .targetMuscle(exerciseDTO.getTargetMuscle())
+                    .feedbackAvailable(false) //기본값 false
+                    .build();
+
+
+        } catch (Exception e){
+            throw new RuntimeException("DB 저장중 오류", e);
+        }
+
         return null;
     }
 }

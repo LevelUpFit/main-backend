@@ -3,7 +3,7 @@ package com.levelupfit.mainbackend.service;
 import com.levelupfit.mainbackend.domain.user.FormUser;
 import com.levelupfit.mainbackend.domain.user.User;
 import com.levelupfit.mainbackend.domain.user.UserStrength;
-import com.levelupfit.mainbackend.dto.*;
+import com.levelupfit.mainbackend.dto.user.*;
 import com.levelupfit.mainbackend.dto.user.request.ChangePwdRequestDTO;
 import com.levelupfit.mainbackend.dto.user.response.LoginResponseDTO;
 import com.levelupfit.mainbackend.dto.user.response.MessageResponseDTO;

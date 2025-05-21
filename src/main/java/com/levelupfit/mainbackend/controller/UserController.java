@@ -1,16 +1,11 @@
 package com.levelupfit.mainbackend.controller;
 
-import com.levelupfit.mainbackend.config.MinioConfig;
-import com.levelupfit.mainbackend.domain.user.FormUser;
-import com.levelupfit.mainbackend.domain.user.User;
-import com.levelupfit.mainbackend.domain.user.UserStrength;
-import com.levelupfit.mainbackend.dto.*;
+import com.levelupfit.mainbackend.dto.user.*;
 import com.levelupfit.mainbackend.dto.user.request.ChangePwdRequestDTO;
 import com.levelupfit.mainbackend.dto.user.response.LoginResponseDTO;
 import com.levelupfit.mainbackend.dto.user.response.MessageResponseDTO;
 import com.levelupfit.mainbackend.service.KakaoService;
 import com.levelupfit.mainbackend.service.MinioService;
-import com.levelupfit.mainbackend.service.ObjectStorage;
 import com.levelupfit.mainbackend.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;

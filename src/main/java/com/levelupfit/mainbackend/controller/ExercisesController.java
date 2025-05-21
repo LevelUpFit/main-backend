@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @CrossOrigin(origins = "http://localhost:4000")
 @RestController
 @RequiredArgsConstructor
@@ -21,6 +23,26 @@ public class ExercisesController {
         if(responseDTO.isSuccess()) {
             return ResponseEntity.ok(responseDTO);
         } else {
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+    }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<ExerciseDTO>>> getExercise() {
+        ApiResponse<List<ExerciseDTO>> responseDTO = exerciseService.ExerciseFindAll();
+        if(responseDTO.isSuccess()) {
+            return ResponseEntity.ok(responseDTO);
+        } else {
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<ExerciseDTO>> getExerciseById(@PathVariable int id) {
+        ApiResponse<ExerciseDTO> responseDTO = exerciseService.ExerciseFindById(id);
+        if(responseDTO.isSuccess()) {
+            return ResponseEntity.ok(responseDTO);
+        } else{
             return ResponseEntity.badRequest().body(responseDTO);
         }
     }

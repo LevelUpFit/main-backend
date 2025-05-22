@@ -6,6 +6,7 @@ import java.time.LocalDate;
 
 @Data
 public class RoutineCreateRequest {
+
     private Integer userId;
     private String name;
     private String description;

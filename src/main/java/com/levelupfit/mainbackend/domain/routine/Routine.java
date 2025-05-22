@@ -20,7 +20,7 @@ public class Routine {
     private int routineId;
 
     @JoinColumn(name = "user_id")
-    private int userId;
+    private Integer userId;
 
     @Column(nullable = false)
     private String name;
@@ -39,5 +39,5 @@ public class Routine {
         this.createdAt = LocalDate.now(); // 현재 시간 설정 yyyy-mm-dd
     }
 
-    //private String image; 컬럼에 까먹고 추가 안함
+    //private String image; 컬럼에 까먹고 추가 안함 나중에 추가 해야함
 }

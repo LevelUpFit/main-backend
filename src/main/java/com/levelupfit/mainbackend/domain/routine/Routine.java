@@ -19,8 +19,8 @@ public class Routine {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int routineId;
 
-    @JoinColumn(name = "user_id")
-    private int userId;
+    @Column(name = "user_id")
+    private Integer userId;
 
     @Column(nullable = false)
     private String name;

@@ -35,11 +35,12 @@ public class RoutineController {
     @GetMapping
     public ResponseEntity<ApiResponse<List<RoutineDTO>>> getRoutinesDefault() {
         ApiResponse<List<RoutineDTO>> response = routineService.getRoutineDefault();
-        if(response.isSuccess()) {
+        if (response.isSuccess()) {
             return ResponseEntity.ok(response);
-        } else{
+        } else {
             return ResponseEntity.badRequest().body(response);
         }
+    }
       
     //루틴 생성 메서드
     @PostMapping("/create")
@@ -47,7 +48,7 @@ public class RoutineController {
         ApiResponse<RoutineDTO> response = routineService.createRoutine(routineCreateRequest);
         if(response.isSuccess()){
             return ResponseEntity.ok(response);
-        } else{
+        } else {
             return ResponseEntity.badRequest().body(response);
         }
     }

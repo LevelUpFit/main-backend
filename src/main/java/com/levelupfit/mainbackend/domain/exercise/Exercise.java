@@ -1,9 +1,6 @@
 package com.levelupfit.mainbackend.domain.exercise;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
@@ -17,6 +14,7 @@ public class Exercise {
 
     @Id
     @Column(name = "exercise_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY) //이게 Serial 처리
     private int exerciseId;
 
     @Column(name = "name")
@@ -28,7 +26,7 @@ public class Exercise {
     @Column(name = "thumbnail_url")
     private String thumbnailUrl;
 
-    @Column(name = "target_muscle")
+    @Column(name = "target_muscle", columnDefinition = "TEXT")
     private String targetMuscle;
 
     @Column(name = "feedback_available")

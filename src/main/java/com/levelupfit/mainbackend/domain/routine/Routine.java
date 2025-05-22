@@ -1,32 +1,43 @@
 package com.levelupfit.mainbackend.domain.routine;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import com.levelupfit.mainbackend.domain.user.User;
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.time.LocalDate;
 
 @Entity
-@NoArgsConstructor
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
 @AllArgsConstructor
+@Table(name = "routines")
 public class Routine {
 
     @Id
-    @Column(name = "routines_id")
-    private int routinesId;
+    @Column(name="routines_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int routineId;
 
-    @Column(name = "user_id")
+    @JoinColumn(name = "user_id")
     private int userId;
 
-    @Column(name = "name")
+    @Column(nullable = false)
     private String name;
 
-    @Column(name = "description")
+    @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "difficulty")
-    private int difficulty;
+    @Column(nullable = false)
+    private Integer difficulty;
 
     @Column(name = "created_at")
-    private String createdAt;
+    private LocalDate createdAt;
+
+    @PrePersist //save() 할 때 불러와짐
+    public void setCreatedAt() {
+        this.createdAt = LocalDate.now(); // 현재 시간 설정 yyyy-mm-dd
+    }
+
+    //private String image; 컬럼에 까먹고 추가 안함
 }

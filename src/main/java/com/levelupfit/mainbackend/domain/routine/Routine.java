@@ -20,7 +20,7 @@ public class Routine {
     private int routineId;
 
     @JoinColumn(name = "user_id")
-    private int userId;
+    private Integer userId;
 
     @Column(nullable = false)
     private String name;

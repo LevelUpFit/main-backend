@@ -16,7 +16,7 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:4000")
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("routine")
+@RequestMapping("routine")  
 public class RoutineController {
 
     private final RoutineService routineService;

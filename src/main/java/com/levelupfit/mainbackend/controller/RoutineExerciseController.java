@@ -14,12 +14,12 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:4000")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/routines/{routineId}/exercises")
+@RequestMapping("/routines-exercises")
 public class RoutineExerciseController {
     final RoutineExerciseService routineExerciseService;
 
     //루틴 종목 추가 메서드
-    @PostMapping("/exercise")
+    @PostMapping
     public ResponseEntity<ApiResponse<List<RoutineExerciseDTO>>> createRoutineExercise(@RequestBody List<RoutineExerciseRequest> routineExerciseRequest) {
         ApiResponse<List<RoutineExerciseDTO>> apiResponse =routineExerciseService.createRoutineExercise(routineExerciseRequest);
         if(apiResponse.isSuccess()) {

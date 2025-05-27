@@ -21,7 +21,7 @@ public class RoutineController {
 
     private final RoutineService routineService;
 
-    //userId로 조회
+    //userId로 루틴 리스트 조회
     @GetMapping("/{userid}")
     public ResponseEntity<ApiResponse<List<RoutineDTO>>> getRoutine(@PathVariable Integer userid) {
         ApiResponse<List<RoutineDTO>> response = routineService.getRoutineByUserId(userid);
@@ -32,6 +32,7 @@ public class RoutineController {
         }
     }
 
+    //루틴 리스트 조회(기본제공)
     @GetMapping
     public ResponseEntity<ApiResponse<List<RoutineDTO>>> getRoutinesDefault() {
         ApiResponse<List<RoutineDTO>> response = routineService.getRoutineDefault();

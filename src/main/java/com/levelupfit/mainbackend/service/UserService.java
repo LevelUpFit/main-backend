@@ -3,10 +3,11 @@ package com.levelupfit.mainbackend.service;
 import com.levelupfit.mainbackend.domain.user.FormUser;
 import com.levelupfit.mainbackend.domain.user.User;
 import com.levelupfit.mainbackend.domain.user.UserStrength;
+import com.levelupfit.mainbackend.dto.ApiResponse;
 import com.levelupfit.mainbackend.dto.user.*;
 import com.levelupfit.mainbackend.dto.user.request.ChangePwdRequestDTO;
-import com.levelupfit.mainbackend.dto.user.response.LoginResponseDTO;
-import com.levelupfit.mainbackend.dto.user.response.MessageResponseDTO;
+import com.levelupfit.mainbackend.dto.user.request.RegisterRequest;
+import com.levelupfit.mainbackend.dto.user.response.LoginResponse;
 import com.levelupfit.mainbackend.mapper.FormUserMapper;
 import com.levelupfit.mainbackend.mapper.UserMapper;
 import com.levelupfit.mainbackend.repository.FormUserRepository;
@@ -14,9 +15,9 @@ import com.levelupfit.mainbackend.repository.SocialUserRepository;
 import com.levelupfit.mainbackend.repository.UserRepository;
 import com.levelupfit.mainbackend.repository.UserStrengthRepository;
 import com.levelupfit.mainbackend.util.JwtUtils;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.apache.ibatis.jdbc.Null;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -42,30 +43,33 @@ public class UserService {
     private String DEFAULT_PROFILE_URL;
 
     //이메일 중복 체크
-    public boolean checkEmail(String email) {
-        System.out.println(email);
-        return !userRepository.existsByEmail(email);
+    public ApiResponse<Null> checkEmail(CheckEmailDTO email) {
+        if(!userRepository.existsByEmail(email.getEmail())){
+            return ApiResponse.ok(null,200);
+        } else{
+            return ApiResponse.fail("이메일 중복",400);
+        }
     }
 
     //@Transactional은 데이터베이스 작업을 하나의 작업 단위로 묶어준다. (하나라도 오류 발생하면 오류남)
-    //폼회원가입 (테스트 완)
+    //폼회원가입
     @Transactional
-    public int saveFormUser(FormUserDTO formUserDto, UserDTO userDto, HttpServletResponse response) {
+    public ApiResponse<String> saveFormUser(RegisterRequest registerRequest) {
         boolean linked = false;
         try {
-            boolean existingUser = userRepository.existsByEmail(userDto.getEmail());
+            boolean existingUser = userRepository.existsByEmail(registerRequest.getEmail());
             if (!existingUser) { //신규 회원
-                String encodedPassword = bCryptPasswordEncoder.encode(formUserDto.getPwd());
-                String accessToken = jwtUtils.createAccessToken(Integer.toString(userDto.getUser_id()));
-                String refreshToken = jwtUtils.createRefreshToken(Integer.toString(userDto.getUser_id()));
+                String encodedPassword = bCryptPasswordEncoder.encode(registerRequest.getPwd());
+                String accessToken = jwtUtils.createAccessToken(registerRequest.getEmail());
+                String refreshToken = jwtUtils.createRefreshToken(registerRequest.getEmail());
 
 
                 User user = User.builder()
-                        .email(userDto.getEmail())
+                        .email(registerRequest.getEmail())
                         .nickname("헬린이1")
-                        .dob(LocalDate.parse(userDto.getDob()))
-                        .level(userDto.getLevel())
-                        .gender(userDto.getGender())
+                        .dob(LocalDate.parse(registerRequest.getDob()))
+                        .level(registerRequest.getLevel())
+                        .gender(registerRequest.getGender())
                         .profile("default.jpg")
                         .access_token(accessToken)
                         .refresh_token(refreshToken)
@@ -82,6 +86,16 @@ public class UserService {
 
                 formUserRepository.save(formUser);
 
+                LoginResponse userResponse = new LoginResponse();
+                userResponse.setUserId(user.getUserid());
+                userResponse.setNickname(saveduser.getNickname());
+                userResponse.setProfile(DEFAULT_PROFILE_URL);
+                userResponse.setAccessToken(accessToken);
+                userResponse.setRefreshToken(refreshToken);
+
+                return ApiResponse.ok("",201);
+
+                /*
                 //소셜 로그인 개발 후 생성
 //                SocialUserDTO socialuser = socialUserMapper.findByEmail(userDto.getEmail());
 //                if (socialuser != null && socialuser.getEmail().equals(userDto.getEmail())) {
@@ -99,28 +113,26 @@ public class UserService {
 //                accessTokenCookie.setMaxAge(3600);
 //                accessTokenCookie.setPath("/");
 //                response.addCookie(accessTokenCookie);
+                 */
             }
             else {
-                if(checkLinkForm(userDto.getEmail())){
-                    return 410;
+                if(checkLinkForm(registerRequest.getEmail())){
+                    return ApiResponse.fail("이메일 중복", 400);
                 }
-                return 409;
+                return ApiResponse.fail("회원가입중 오류 발생", 400);
                 //throw new RuntimeException("이미 존재하는 사용자입니다.");
             }
         } catch (Exception e) {
-            throw new RuntimeException("DB 저장 중 오류", e);
-            //return 500;
-            //throw new RuntimeException("회원가입 처리 중 오류가 발생하였습니다.", e);
+            return ApiResponse.fail("회원가입중 오류 발생", 500);
         }
-        return 201;
     }
 
     //로그인 로직
-    public LoginResponseDTO login(LoginRequestDTO dto){
+    public ApiResponse<LoginResponse> login(LoginRequestDTO dto){
         String userEmail = dto.getEmail();
         String password = dto.getPwd();
 
-        LoginResponseDTO loginResponseDTO = new LoginResponseDTO();
+        LoginResponse response = new LoginResponse();
 
         if(userRepository.existsByEmail(userEmail)){
             //이메일을 통한 user검색
@@ -128,28 +140,24 @@ public class UserService {
             //user_id를 통한 form_user 검색
             FormUser formUser = formUserRepository.findByUserId(user.getUserid());
             if(bCryptPasswordEncoder.matches(password,formUser.getPasswd())){
-                loginResponseDTO.setCode(200);
-                loginResponseDTO.setMessage("로그인 성공");
-                loginResponseDTO.setUserId(user.getUserid());
-                loginResponseDTO.setEmail(user.getEmail());
-                loginResponseDTO.setNickname(user.getNickname());
-                loginResponseDTO.setProfile(user.getProfile());
-                return loginResponseDTO;
+                response.setUserId(user.getUserid());
+                response.setNickname(user.getNickname());
+                response.setProfile(user.getProfile());
+                response.setLevel(user.getLevel());
+                response.setAccessToken(user.getAccess_token());
+                response.setRefreshToken(user.getRefresh_token());
+                return ApiResponse.ok(response,200);
             } else {
-                loginResponseDTO.setCode(401);
-                loginResponseDTO.setMessage("아이디 혹은 비밀번호가 일치하지 않습니다.");
-                return loginResponseDTO;
+                return ApiResponse.fail("아이디 혹은 비밀번호가 일치하지 않습니다.",401);
             }
         } else {
-            loginResponseDTO.setCode(401);
-            loginResponseDTO.setMessage("아이디 혹은 비밀번호가 일치하지 않습니다.");
-            return loginResponseDTO;
+            return ApiResponse.fail("아이디 혹은 비밀번호가 일치하지 않습니다.", 401);
         }
     }
 
     //3대 운동 저장 (테스트 완)
-    public boolean saveUserStrength(UserStrengthDTO dto){
-        if(userStrengthRepository.existsByUserId(dto.getUserid())) return false;
+    public ApiResponse<Null> saveUserStrength(UserStrengthDTO dto){
+        if(userStrengthRepository.existsByUserId(dto.getUserid())) return ApiResponse.fail("이미 3대 운동이 존재합니다.",400);
         User user =  userRepository.findByUserid(dto.getUserid());
         UserStrength userStrength = UserStrength.builder()
                 .user(user)
@@ -160,7 +168,7 @@ public class UserService {
 
         userStrengthRepository.save(userStrength);
 
-        return true;
+        return ApiResponse.ok(null,201);
     }
 
     //리프레시토큰찾기
@@ -169,6 +177,7 @@ public class UserService {
 
     }
 
+    //비밀번호 찾기
     @Transactional
     public void findPassword(String userId, String newPassword) {
         FormUserDTO formUserDto = formUserMapper.findById(userId);
@@ -187,29 +196,26 @@ public class UserService {
         return socialUserRepository.existsByEmail(email);
     }
 
-    //유저 정보 조회 (테스트 완)
-    public UserResponseDTO getInfo(int userid) {
-        System.out.println("email " + userid);
+    //유저 정보 조회
+    public ApiResponse<LoginResponse> getInfo(int userid) {
         User user = userRepository.findByUserid(userid);
         if(user == null){
-            return null;
+            return ApiResponse.fail("유저를 찾을 수 없음", 404);
         }
-        UserResponseDTO userDTO = new UserResponseDTO();
-        userDTO.setUser_id(user.getUserid());
-        userDTO.setEmail(user.getEmail());
+        LoginResponse userDTO = new LoginResponse();
+        userDTO.setUserId(user.getUserid());
         userDTO.setNickname(user.getNickname());
-        userDTO.setDob(user.getDob().toString());
-        userDTO.setGender(user.getGender());
         userDTO.setProfile(DEFAULT_PROFILE_URL + user.getProfile());
         userDTO.setLevel(user.getLevel());
         userDTO.setAccessToken(user.getAccess_token());
+        userDTO.setRefreshToken(user.getRefresh_token());
 
-        return userDTO;
+        return ApiResponse.ok(userDTO,200);
     }
 
-    //유저 프로필 수정 (테스트 완)
+    //유저 프로필 수정
     @Transactional
-    public boolean updateProfile(int userId, MultipartFile file) {
+    public ApiResponse<Null> updateProfile(int userId, MultipartFile file) {
         User user = userRepository.findByUserid(userId);
         if(!user.getProfile().equals("default.jpg")){ //기본 프로필인지 확인
             minioService.deleteFile("levelupfit-profile","",user.getProfile()); //기존 프로필 사진 삭제
@@ -218,79 +224,76 @@ public class UserService {
 
         if(profile.isEmpty() || profile.isBlank()) {
             user.setProfile("default.jpg");
-            return false;
+            return ApiResponse.fail("프로필 수정중 오류", 500);
         }
         user.setProfile(profile);
-        return true;
+        return ApiResponse.ok(null,200);
     }
 
-    //유저 닉네임 수정 (테스트 완)
+    //유저 닉네임 수정
     @Transactional
-    public boolean updateNickname(int userId, String nickname) {
-        if(nickname == null){
-            return false;
+    public ApiResponse<Null> updateNickname(UpdateNicknameDTO dto) {
+        if(dto.getNickname() == null){
+            return ApiResponse.fail("닉네임을 입력해주세요", 400);
         }
-        User user = userRepository.findByUserid(userId);
-        user.setNickname(nickname);
+        User user = userRepository.findByUserid(dto.getUserid());
+        user.setNickname(dto.getNickname());
 
-        return true;
+        return ApiResponse.ok(null,200);
     }
 
-    //유저 비밀번호 변경 (개발중)
+    //유저 비밀번호 변경
     @Transactional
-    public MessageResponseDTO updatePassword(ChangePwdRequestDTO dto){
+    public ApiResponse<Null> updatePassword(ChangePwdRequestDTO dto){
         int userId = dto.getUserId();
         String oldPassword = dto.getOldPassword();
         String newPassword = dto.getNewPassword();
 
-        MessageResponseDTO result = new MessageResponseDTO();
         if(userRepository.existsByUserid(userId)){
             User user = userRepository.findByUserid(userId);
             FormUser formUser = formUserRepository.findByUserId(user.getUserid());
             if(bCryptPasswordEncoder.matches(oldPassword,formUser.getPasswd())){ //비밀번호 확인
                 String encodedPassword = bCryptPasswordEncoder.encode(newPassword);
                 formUser.setPasswd(encodedPassword);
-                result.setCode(200);
-                result.setMessage("비밀번호 변경이 완료되었습니다.");
-                return result;
+                return ApiResponse.ok(null,200);
             }
         }
-
-        result.setCode(401);
-        result.setMessage("비밀번호 변경 중 오류가 발생했습니다.");
-        return result;
+        return ApiResponse.fail("비밀번호 변경 중 오류가 발생했습니다.",401);
     }
 
-    //유저 3대 측정 수정 (테스트 완)
+    //유저 3대 측정 수정
     @Transactional
-    public boolean updateStrength(UserStrengthDTO dto) {
-        if(!userStrengthRepository.existsByUserId(dto.getUserid())) return false;
+    public ApiResponse<Null> updateStrength(UserStrengthDTO dto) {
+        if(!userStrengthRepository.existsByUserId(dto.getUserid())) {
+            return ApiResponse.fail("회원정보를 찾을 수 없습니다.", 400);
+        }
 
-        User user = userRepository.findByUserid(dto.getUserid());
         UserStrength userStrength = userStrengthRepository.findByUserId(dto.getUserid());
         userStrength.setBenchPress(dto.getBenchPress());
         userStrength.setDeadLift(dto.getDeadLift());
         userStrength.setSquat(dto.getSquat());
 
-        return true;
+        return ApiResponse.ok(null,200);
     }
 
-    //유저 운동 수준 변경 (테스트 완)
+    //유저 운동 수준 변경
     @Transactional
-    public boolean updateLevel(int userId, int level) {
-        if(level < 1 || level > 3){
-            return false;
+    public ApiResponse<Null> updateLevel(UpdateLevelDTO dto) {
+        if(dto.getLevel() < 1 || dto.getLevel() > 3){
+            return ApiResponse.fail("레벨을 1~3 사이로 입력해주세요.",400);
         }
-        User user = userRepository.findByUserid(userId);
-        user.setLevel(level);
+        User user = userRepository.findByUserid(dto.getUserid());
+        user.setLevel(dto.getLevel());
 
-        return true;
+        return ApiResponse.ok(null,200);
     }
 
     //계정 탈퇴 (테스트 완)
     @Transactional
-    public boolean deleteUser(FormUserDTO dto) {
-        if(!userRepository.existsByEmail(dto.getUserId())) return false;
+    public ApiResponse<Null> deleteUser(FormUserDTO dto) {
+        if(!userRepository.existsByEmail(dto.getUserId())) {
+            return ApiResponse.fail("회원정보를 찾을 수 없습니다.", 400);
+        }
         User user = userRepository.findByEmail(dto.getUserId());
         if(userStrengthRepository.existsByUserId(user.getUserid())){
             userStrengthRepository.deleteById(user.getUserid());
@@ -305,7 +308,7 @@ public class UserService {
             minioService.deleteFile("levelupfit-profile","",profile);
         }
 
-        return true;
+        return ApiResponse.ok(null,200);
     }
 
 

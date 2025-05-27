@@ -1,19 +1,18 @@
 package com.levelupfit.mainbackend.controller;
 
+import com.levelupfit.mainbackend.dto.ApiResponse;
 import com.levelupfit.mainbackend.dto.user.*;
 import com.levelupfit.mainbackend.dto.user.request.ChangePwdRequestDTO;
-import com.levelupfit.mainbackend.dto.user.response.LoginResponseDTO;
-import com.levelupfit.mainbackend.dto.user.response.MessageResponseDTO;
+import com.levelupfit.mainbackend.dto.user.request.RegisterRequest;
+import com.levelupfit.mainbackend.dto.user.response.LoginResponse;
 import com.levelupfit.mainbackend.service.KakaoService;
 import com.levelupfit.mainbackend.service.MinioService;
 import com.levelupfit.mainbackend.service.UserService;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.ibatis.jdbc.Null;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,87 +30,55 @@ public class UserController {
     private final KakaoService kakaoService;
     private final MinioService minioService;
 
+    //이메일 중복확인
     @PostMapping("/checkEmail")
-    public ResponseEntity<?> checkEmail(@Valid @RequestBody CheckEmailDTO email, BindingResult result) {
+    public ResponseEntity<ApiResponse<Null>> checkEmail(@Valid @RequestBody CheckEmailDTO email, BindingResult result) {
         if (result.hasErrors()) {
-            return ResponseEntity.badRequest().body(result.getAllErrors().get(0).getDefaultMessage());
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.fail(result.getAllErrors().get(0).getDefaultMessage(),400));
         }
-        boolean userExists = userService.checkEmail(email.getEmail());
-        Map<String, String> responseMap = new HashMap<>();
-        if (userExists) {
-            responseMap.put("message", "회원가입 가능");
-            return ResponseEntity.status(HttpStatus.OK).body(responseMap);
+        ApiResponse<Null> response = userService.checkEmail(email);
+
+        if (response.isSuccess()) {
+            return ResponseEntity.status(HttpStatus.OK).body(response);
         } else {
-            responseMap.put("message", "중복 이메일");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseMap);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
     }
 
-    //form 회원가입 (테스트 완)
+    //form 회원가입
     @PostMapping("/register")
-    public ResponseEntity<Map<String, String>> saveFormUser(@RequestBody FormInfoDTO formInfoDto, HttpServletResponse response) {
-        if (SecurityContextHolder.getContext().getAuthentication() != null &&
-                SecurityContextHolder.getContext().getAuthentication().isAuthenticated() &&
-                !(SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("message", "이미 로그인된 사용자입니다."));
+    public ResponseEntity<ApiResponse<String>> saveFormUser(@RequestBody RegisterRequest registerRequest) {
+
+        ApiResponse<String> response = userService.saveFormUser(registerRequest);
+
+        if(response.isSuccess()){
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
-
-        FormUserDTO formUserDto = formInfoDto.getFormUserDto();
-        UserDTO userDto = formInfoDto.getUserDto();
-
-        int signed = userService.saveFormUser(formUserDto, userDto, response);
-
-        Map<String, String> responseMap = new HashMap<>();
-        return switch (signed) {
-            case 201 -> {
-                responseMap.put("message", "회원가입이 완료되었습니다.");
-                yield ResponseEntity.status(HttpStatus.CREATED).body(responseMap);
-            }
-            case 409 -> {
-                responseMap.put("message", "중복된 이메일 입니다.");
-                yield ResponseEntity.status(HttpStatus.CONFLICT).body(responseMap);
-            }
-            case 410 -> {
-                responseMap.put("message", "이미 카카오로그인으로 등록된 이메일입니다.");
-                yield ResponseEntity.status(HttpStatus.CONFLICT).body(responseMap);
-            }
-            case 500 -> {
-                responseMap.put("message", "회원가입중 오류가 발생했습니다.");
-                yield ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseMap);
-            }
-            default -> {
-                responseMap.put("message", "정의되지 않은 오류가 발생했습니다.");
-                yield ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseMap);
-            }
-        };
-
     }
 
     //3대 운동 등록 (테스트 완)
     @PostMapping("/strength")
-    public ResponseEntity<String> saveStrength(@RequestBody UserStrengthDTO dto, HttpServletResponse response) {
-        if(userService.saveUserStrength(dto)){
-            return ResponseEntity.status(HttpStatus.OK).body("생성 완료");
+    public ResponseEntity<ApiResponse<Null>> saveStrength(@RequestBody UserStrengthDTO dto) {
+        ApiResponse<Null> response = userService.saveUserStrength(dto);
+        if(response.isSuccess()){
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        } else{
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
-        return ResponseEntity.badRequest().body("오류");
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO dto, HttpServletResponse response){
+    public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginRequestDTO dto){
 
-        LoginResponseDTO responsedto = userService.login(dto);
-        int code = responsedto.getCode();
-        switch (code) {
-            case 200 -> {
-                return ResponseEntity.status(HttpStatus.OK).body(responsedto);
-            }
-            case 401 -> {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responsedto);
-            }
-            default -> {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responsedto);
-            }
+        ApiResponse<LoginResponse> response = userService.login(dto);
+
+        if(response.isSuccess()){
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
     }
 
@@ -143,82 +110,85 @@ public class UserController {
         };
     }
 
-    //유저 정보 조회 (테스트 완)
+    //유저 정보 조회
     @GetMapping("/getinfo/{userId}")
-    public ResponseEntity<UserResponseDTO> getInfo(@PathVariable int userId){
-        UserResponseDTO user = userService.getInfo(userId);
-        if(user == null){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+    public ResponseEntity<ApiResponse<LoginResponse>> getInfo(@PathVariable int userId){
+        ApiResponse<LoginResponse> response = userService.getInfo(userId);
+        if(response.isSuccess()){
+            return ResponseEntity.status(HttpStatus.OK).body(response);
         }
-        return ResponseEntity.status(HttpStatus.OK).body(user);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
-    //프로필 사진 변경 (테스트 완)
+    //프로필 사진 변경
     @PatchMapping("/profile")
-    public ResponseEntity<String> updateFormUser(@RequestParam MultipartFile profile, @RequestParam int userid) {
-        if(userService.updateProfile(userid,profile)) return ResponseEntity.status(HttpStatus.OK).body("프로필 변경");
-
-        return ResponseEntity.badRequest().body("오류");
+    public ResponseEntity<ApiResponse<Null>> updateFormUser(@RequestParam MultipartFile profile, @RequestParam int userid) {
+        ApiResponse<Null> response = userService.updateProfile(userid,profile);
+        if(response.isSuccess()) {
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        } else{
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
     }
 
-    //운동 수준 변경 (테스트 완)
+    //운동 수준 변경
     @PatchMapping("/level")
-    public ResponseEntity<String> updateLevel(@RequestBody UpdateLevelDTO dto) {
-        if(userService.updateLevel(dto.getUserid(), dto.getLevel())){
-            return ResponseEntity.ok("수정 완료");
+    public ResponseEntity<ApiResponse<Null>> updateLevel(@RequestBody UpdateLevelDTO dto) {
+        ApiResponse<Null> response = userService.updateLevel(dto);
+        if(response.isSuccess()) {
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
-
-        return ResponseEntity.badRequest().body("오류");
     }
 
-    //닉네임 변경 (테스트 완)
+    //닉네임 변경
     @PatchMapping("/nickname")
-    public ResponseEntity<String> updateNickname(@RequestBody UpdateNicknameDTO dto) {
-        if(userService.updateNickname(dto.getUserid(), dto.getNickname())){
-            return ResponseEntity.ok("수정 완료");
+    public ResponseEntity<ApiResponse<Null>> updateNickname(@RequestBody UpdateNicknameDTO dto) {
+        ApiResponse<Null> response = userService.updateNickname(dto);
+        if(response.isSuccess()) {
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
-
-        return ResponseEntity.badRequest().body("오류");
     }
 
-    //3대 운동 변경 (테스트 완)
+    //3대 운동 변경
     @PatchMapping("/strength")
-    public ResponseEntity<String> updateStrength(@RequestBody UserStrengthDTO dto){
-        if(userService.updateStrength(dto)){
-            return ResponseEntity.ok("수정완료");
+    public ResponseEntity<ApiResponse<Null>> updateStrength(@RequestBody UserStrengthDTO dto){
+        ApiResponse<Null> reponse = userService.updateStrength(dto);
+        if(reponse.isSuccess()){
+            return ResponseEntity.ok(reponse);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(reponse);
         }
-        return ResponseEntity.badRequest().body("오류");
     }
 
-    //이미지 업로드 (테스트 완)
+    //이미지 업로드
     @PostMapping("/upload")
     public void test(MultipartFile file) {
         minioService.uploadFile("levelupfit-profile","",file);
     }
 
-    //계정 탈퇴 (테스트 완)
+    //계정 탈퇴
     @DeleteMapping("/delete")
-    public ResponseEntity<String> deleteUser(@RequestBody FormUserDTO dto) {
-        if(userService.deleteUser(dto)) return ResponseEntity.ok("삭제 완료");
-        return ResponseEntity.badRequest().body("오류");
+    public ResponseEntity<ApiResponse<Null>> deleteUser(@RequestBody FormUserDTO dto) {
+        ApiResponse<Null> response = userService.deleteUser(dto);
+        if(response.isSuccess()){
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.badRequest().body(response);
+        }
     }
 
     @PatchMapping("/password")
-    public ResponseEntity<MessageResponseDTO> updatePassword(@RequestBody ChangePwdRequestDTO dto) {
-        MessageResponseDTO result = userService.updatePassword(dto);
-        int code = result.getCode();
-        switch (code) {
-            case 200 -> {
-                return ResponseEntity.status(HttpStatus.OK).body(result);
-            }
-            case 401 -> {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
-            }
-            default -> {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
-            }
+    public ResponseEntity<ApiResponse<Null>> updatePassword(@RequestBody ChangePwdRequestDTO dto) {
+        ApiResponse<Null> response = userService.updatePassword(dto);
+        if(response.isSuccess()){
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        } else{
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
-
     }
 
 }

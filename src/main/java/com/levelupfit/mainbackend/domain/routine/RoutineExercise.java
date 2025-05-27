@@ -6,6 +6,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.Type;
+import org.hibernate.type.SqlTypes;
+
+import java.util.List;
 
 
 @Entity
@@ -13,7 +18,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name = "routine_exercise")
+@Table(name = "routine_exercises")
 public class RoutineExercise {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,8 +36,9 @@ public class RoutineExercise {
     @Column(nullable = false)
     private int sets;
 
-    @Column(nullable = false)
-    private int reps;
+    @JdbcTypeCode(SqlTypes.ARRAY)
+    @Column(columnDefinition = "integer[]", nullable = false)
+    private Integer[] reps;
 
     @Column(name = "rest_time")
     private Integer restTime; //null 허용을 위해 Integer 타입 선택

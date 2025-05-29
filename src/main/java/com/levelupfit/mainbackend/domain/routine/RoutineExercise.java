@@ -1,11 +1,11 @@
 package com.levelupfit.mainbackend.domain.routine;
 
 import com.levelupfit.mainbackend.domain.exercise.Exercise;
+import com.levelupfit.mainbackend.dto.routineExercise.RoutineExerciseDTO;
+import com.levelupfit.mainbackend.dto.routineExercise.request.RoutineExerciseRequest;
+import com.levelupfit.mainbackend.repository.ExerciseRepository;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.Type;
 import org.hibernate.type.SqlTypes;
@@ -15,11 +15,13 @@ import java.util.List;
 
 @Entity
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Table(name = "routine_exercises")
 public class RoutineExercise {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "routines_exercises_id")
@@ -45,4 +47,24 @@ public class RoutineExercise {
 
     @Column(name = "exercise_order", nullable = false)
     private int exerciseOrder;
+
+    public void updateFrom(RoutineExerciseDTO dto, Exercise exercise) {
+        this.exerciseOrder = dto.getExerciseOrder();
+        this.setExercise(exercise);
+        this.sets = dto.getSets();
+        this.reps = dto.getReps().toArray(new Integer[0]);
+        this.restTime = dto.getRestTime();
+    }
+
+
+    public static RoutineExercise from(RoutineExerciseRequest req, Exercise exercise) {
+        RoutineExercise re = new RoutineExercise();
+        re.setExercise(exercise);
+        re.setSets(req.getSets());
+        re.setReps(req.getReps().toArray(new Integer[0]));
+        re.setRestTime(req.getRestTime());
+        re.setExerciseOrder(req.getExerciseOrder());
+        // Routine은 service에서 set 해줌
+        return re;
+    }
 }

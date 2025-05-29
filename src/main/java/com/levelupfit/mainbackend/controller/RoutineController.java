@@ -5,8 +5,10 @@ import com.levelupfit.mainbackend.domain.routine.Routine;
 import com.levelupfit.mainbackend.dto.ApiResponse;
 import com.levelupfit.mainbackend.dto.routine.RoutineDTO;
 import com.levelupfit.mainbackend.dto.routine.request.RoutineCreateRequest;
+import com.levelupfit.mainbackend.dto.routine.request.RoutineDeleteRequest;
 import com.levelupfit.mainbackend.service.RoutineService;
 import lombok.RequiredArgsConstructor;
+import org.apache.ibatis.jdbc.Null;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +18,7 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:4000")
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("routine")  
+@RequestMapping("routine")
 public class RoutineController {
 
     private final RoutineService routineService;
@@ -47,6 +49,16 @@ public class RoutineController {
     @PostMapping("/create")
     public ResponseEntity<ApiResponse<RoutineDTO>> createRoutine(@RequestBody RoutineCreateRequest routineCreateRequest) {
         ApiResponse<RoutineDTO> response = routineService.createRoutine(routineCreateRequest);
+        if(response.isSuccess()){
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    @DeleteMapping
+    public ResponseEntity<ApiResponse<Void>> deleteRoutine(@RequestBody RoutineDeleteRequest routineDeleteRequest ) {
+        ApiResponse<Void> response = routineService.deleteRoutine(routineDeleteRequest);
         if(response.isSuccess()){
             return ResponseEntity.ok(response);
         } else {

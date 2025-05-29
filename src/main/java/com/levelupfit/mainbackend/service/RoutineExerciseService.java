@@ -3,6 +3,7 @@ package com.levelupfit.mainbackend.service;
 import com.levelupfit.mainbackend.domain.routine.RoutineExercise;
 import com.levelupfit.mainbackend.dto.ApiResponse;
 import com.levelupfit.mainbackend.dto.routineExercise.RoutineExerciseDTO;
+import com.levelupfit.mainbackend.dto.routineExercise.request.RoutineExerciseGetRequest;
 import com.levelupfit.mainbackend.dto.routineExercise.request.RoutineExerciseRequest;
 import com.levelupfit.mainbackend.repository.ExerciseRepository;
 import com.levelupfit.mainbackend.repository.RoutineExerciseRepository;
@@ -23,6 +24,7 @@ public class RoutineExerciseService {
     final RoutineRepository routineRepository;
     final ExerciseRepository exerciseRepository;
 
+    //루틴 종복 생성
     public ApiResponse<List<RoutineExerciseDTO>> createRoutineExercise(List<RoutineExerciseRequest> routineExerciseDTOList) {
         try{
             int id = routineExerciseDTOList.get(0).getRoutineId();
@@ -54,5 +56,20 @@ public class RoutineExerciseService {
         } catch (Exception e){
             return ApiResponse.fail("루틴 운동 저장중 오류가 발생했습니다.",400);
         }
+    }
+
+    //루틴 종목 조회
+    public ApiResponse<List<RoutineExerciseDTO>> getRoutineExercises(RoutineExerciseGetRequest routineExerciseGetRequest) {
+        try {
+            List<RoutineExerciseDTO> list = routineExerciseRepository.findByRoutineRoutineId(routineExerciseGetRequest.getRoutineId())
+                    .stream()
+                    .map(RoutineExerciseDTO::fromRoutineExercise)
+                    .toList();
+
+            return ApiResponse.ok(list,200);
+        } catch (Exception e){
+            return ApiResponse.fail("루틴 종목 조회중 오류 발생", 500);
+        }
+
     }
 }

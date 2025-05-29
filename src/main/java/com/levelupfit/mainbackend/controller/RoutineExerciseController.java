@@ -3,6 +3,7 @@ package com.levelupfit.mainbackend.controller;
 import com.levelupfit.mainbackend.dto.ApiResponse;
 import com.levelupfit.mainbackend.dto.routine.request.RoutineCreateRequest;
 import com.levelupfit.mainbackend.dto.routineExercise.RoutineExerciseDTO;
+import com.levelupfit.mainbackend.dto.routineExercise.request.RoutineExerciseGetRequest;
 import com.levelupfit.mainbackend.dto.routineExercise.request.RoutineExerciseRequest;
 import com.levelupfit.mainbackend.service.RoutineExerciseService;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,17 @@ public class RoutineExerciseController {
             return ResponseEntity.ok(apiResponse);
         } else{
             return ResponseEntity.badRequest().body(apiResponse);
+        }
+    }
+
+    //루틴 종복 조회 메서드
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<RoutineExerciseDTO>>> updateRoutineExercise(@RequestBody RoutineExerciseGetRequest routineExerciseGetRequest) {
+        ApiResponse<List<RoutineExerciseDTO>> response = routineExerciseService.getRoutineExercises(routineExerciseGetRequest);
+        if(response.isSuccess()) {
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.badRequest().body(response);
         }
     }
 }

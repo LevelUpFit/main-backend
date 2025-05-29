@@ -1,6 +1,6 @@
 package com.levelupfit.mainbackend.service;
 
-import com.levelupfit.mainbackend.dto.FormUserDTO;
+import com.levelupfit.mainbackend.dto.user.FormUserDTO;
 import com.levelupfit.mainbackend.mapper.FormUserMapper;
 import com.levelupfit.mainbackend.mapper.UserMapper;
 import org.springframework.security.core.userdetails.UserDetails;

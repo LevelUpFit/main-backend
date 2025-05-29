@@ -8,28 +8,29 @@ import java.time.LocalDate;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @AllArgsConstructor
 @Table(name = "routines")
-public class Routines {
+public class Routine {
 
     @Id
+    @Column(name="routines_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int routineId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @Column(name = "user_id")
+    private Integer userId;
 
-    private String title;
+    @Column(nullable = false)
+    private String name;
 
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    private Boolean isDefault;
-    private Boolean isPublic;
-    private int level;
+    @Column(nullable = false)
+    private Integer difficulty;
 
     @Column(name = "created_at")
     private LocalDate createdAt;
@@ -39,6 +40,5 @@ public class Routines {
         this.createdAt = LocalDate.now(); // 현재 시간 설정 yyyy-mm-dd
     }
 
-    private String image;
-
+    //private String image; 컬럼에 까먹고 추가 안함 나중에 추가 해야함
 }

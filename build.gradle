@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'com.levelupfit'
-version = '0.0.1-SNAPSHOT'
+version = '0.0.2-SNAPSHOT'
 
 java {
     toolchain {
@@ -47,6 +47,10 @@ dependencies {
 
     //MinIO
     implementation 'io.minio:minio:8.5.10'
+
+    //validation
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
 }
 
 tasks.named('test') {

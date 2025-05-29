@@ -1,6 +1,6 @@
 package com.levelupfit.mainbackend.util;
 
-import com.levelupfit.mainbackend.dto.UserDTO;
+import com.levelupfit.mainbackend.dto.user.UserDTO;
 import io.jsonwebtoken.*;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,9 +37,9 @@ public class JwtUtils {
     }
 
     // 리프레시 토큰 생성
-    public String createRefreshToken(String username) {
+    public String createRefreshToken(String email) {
         return Jwts.builder()
-                .setSubject(username)
+                .setSubject(email)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_VALIDITY))
                 .signWith(secretKey, SignatureAlgorithm.HS256) // SecretKey 객체 사용

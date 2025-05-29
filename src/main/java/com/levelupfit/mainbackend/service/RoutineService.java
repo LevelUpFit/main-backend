@@ -5,8 +5,12 @@ import com.levelupfit.mainbackend.domain.routine.Routine;
 import com.levelupfit.mainbackend.dto.ApiResponse;
 import com.levelupfit.mainbackend.dto.routine.RoutineDTO;
 import com.levelupfit.mainbackend.dto.routine.request.RoutineCreateRequest;
+import com.levelupfit.mainbackend.dto.routine.request.RoutineDeleteRequest;
+import com.levelupfit.mainbackend.dto.routine.request.RoutinePatchRequest;
 import com.levelupfit.mainbackend.repository.RoutineRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.apache.ibatis.jdbc.Null;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -62,6 +66,34 @@ public class RoutineService {
             return ApiResponse.ok(list,200);
         } catch (Exception e){
             return ApiResponse.fail("루틴 조회중 오류 발생",500);
+        }
+    }
+
+    //루틴 삭제
+    public ApiResponse<Void> deleteRoutine(RoutineDeleteRequest routineDeleteRequest) {
+        try{
+            routineRepository.deleteById(routineDeleteRequest.getRoutineId());
+            return ApiResponse.ok(null,201);
+        } catch (Exception e){
+            return ApiResponse.fail("삭제중 오류 발생", 500);
+        }
+    }
+
+    //루틴 수정
+    @Transactional
+    public ApiResponse<Void> patchRoutine(RoutinePatchRequest routinePatchRequest) {
+        try{
+            Routine routine = routineRepository.findByRoutineId(routinePatchRequest.getRoutineId());
+            routine.setName(routinePatchRequest.getName());
+            routine.setDescription(routinePatchRequest.getDescription());
+            routine.setDifficulty(routinePatchRequest.getDifficulty());
+
+
+
+            return ApiResponse.ok(null,200);
+
+        } catch (Exception e){
+            return ApiResponse.fail("루틴 수정중 오류 발생", 500);
         }
     }
 }

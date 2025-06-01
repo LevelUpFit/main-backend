@@ -3,6 +3,7 @@ package com.levelupfit.mainbackend.service;
 import com.levelupfit.mainbackend.domain.exercise.ExerciseLogs;
 import com.levelupfit.mainbackend.dto.ApiResponse;
 import com.levelupfit.mainbackend.dto.exerciseLog.ExerciseLogsDTO;
+import com.levelupfit.mainbackend.dto.exerciseLog.request.ExerciseLogsDeleteRequest;
 import com.levelupfit.mainbackend.dto.exerciseLog.request.ExerciseLogsGetRequest;
 import com.levelupfit.mainbackend.dto.exerciseLog.request.ExerciseLogsRequest;
 import com.levelupfit.mainbackend.repository.ExerciseLogsRepository;
@@ -51,6 +52,16 @@ public class ExerciseLogsService {
             
         } catch (Exception e){
             return ApiResponse.fail("기록 조회중 오류", 500);
+        }
+    }
+    
+    //운동 기록 삭제
+    public ApiResponse<Void> deleteExerciseLog(ExerciseLogsDeleteRequest request){
+        try{
+            exerciseLogsRepository.deleteById(request.getExerciseLogId());
+            return ApiResponse.ok(null,200);
+        } catch(Exception e){
+            return ApiResponse.fail("삭제중 오류 발생", 500);
         }
     }
 }

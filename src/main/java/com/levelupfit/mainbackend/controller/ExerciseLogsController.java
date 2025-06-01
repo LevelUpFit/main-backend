@@ -2,11 +2,13 @@ package com.levelupfit.mainbackend.controller;
 
 import com.levelupfit.mainbackend.dto.ApiResponse;
 import com.levelupfit.mainbackend.dto.exerciseLog.ExerciseLogsDTO;
+import com.levelupfit.mainbackend.dto.exerciseLog.request.ExerciseLogsDeleteRequest;
 import com.levelupfit.mainbackend.dto.exerciseLog.request.ExerciseLogsGetRequest;
 import com.levelupfit.mainbackend.dto.exerciseLog.request.ExerciseLogsRequest;
 import com.levelupfit.mainbackend.service.ExerciseLogsService;
 import lombok.RequiredArgsConstructor;
 import okhttp3.Response;
+import org.apache.ibatis.annotations.Delete;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;

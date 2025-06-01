@@ -1,16 +1,22 @@
 package com.levelupfit.mainbackend.domain.exercise;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.LocalDate;
 
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
+@AllArgsConstructor
+@Table(name = "exercise_logs")
 public class ExerciseLogs {
 
     @Id
     @Column(name="exercise_log_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     int id;
 
     @Column(name="user_id")

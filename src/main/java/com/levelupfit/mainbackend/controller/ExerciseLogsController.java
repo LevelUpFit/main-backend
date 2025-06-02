@@ -42,4 +42,14 @@ public class ExerciseLogsController {
             return ResponseEntity.badRequest().body(response);
         }
     }
+
+    @DeleteMapping
+    public ResponseEntity<ApiResponse<Void>> deleteExerciseLogs(@RequestBody ExerciseLogsDeleteRequest request) {
+        ApiResponse<Void> response = exerciseLogsService.deleteExerciseLog(request);
+        if(response.isSuccess()){
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
 }

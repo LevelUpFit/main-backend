@@ -23,18 +23,20 @@ public class ExerciseLogsService {
     public ApiResponse<ExerciseLogsDTO> saveExerciseLog(ExerciseLogsRequest request){
         try{
 
-            ExerciseLogs exerciseLogs = ExerciseLogs.builder()
-                    .userId(request.getUserId())
-                    .name(request.getName())
-                    .targetMuscle(request.getTargetMuscle())
-                    .feedback(request.getFeedback())
-                    .performedDate(request.getPerformedDate())
-                    .build();
+            String[] nameArr = request.getName().split(",");
 
-            ExerciseLogs entity = exerciseLogsRepository.save(exerciseLogs);
-            ExerciseLogsDTO dto = ExerciseLogsDTO.fromExerciseLogs(entity);
+            for(String name:nameArr){
+                ExerciseLogs exerciseLogs = ExerciseLogs.builder()
+                        .userId(request.getUserId())
+                        .name(name)
+                        .targetMuscle(request.getTargetMuscle())
+                        .feedback(request.getFeedback())
+                        .performedDate(request.getPerformedDate())
+                        .build();
+                exerciseLogsRepository.save(exerciseLogs);
+            }
 
-            return ApiResponse.ok(dto,201);
+            return ApiResponse.ok(null,201);
 
         } catch(Exception e){
             return ApiResponse.fail("기록 저장중 오류 발생", 500);

@@ -24,9 +24,12 @@ public class RoutineService {
     //루틴 생성
     public ApiResponse<RoutineDTO> createRoutine(RoutineCreateRequest routineCreateRequest) {
         try{
+
             Routine routine = Routine.builder()
                     .userId(routineCreateRequest.getUserId())
                     .name(routineCreateRequest.getName())
+                    .targetMuscle(routineCreateRequest.getTargetMuscle())
+                    .thumbnailUrl("example.com"+routineCreateRequest.getTargetMuscle())
                     .description(routineCreateRequest.getDescription())
                     .difficulty(routineCreateRequest.getDifficulty())
                     .build();

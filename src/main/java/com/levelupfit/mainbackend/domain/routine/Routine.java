@@ -26,6 +26,12 @@ public class Routine {
     @Column(nullable = false)
     private String name;
 
+    @Column(name = "target_muscle")
+    private String targetMuscle;
+
+    @Column(name = "thumbnail_url")
+    private String thumbnailUrl;
+
     @Column(columnDefinition = "TEXT")
     private String description;
 

@@ -12,5 +12,5 @@ import java.util.List;
 public interface UnifiedLogMapper {
     List<UnifiedLogDto> findAllLogsByUserId(@Param("userId") int userId);
     List<UnifiedLogDto> findAllLogsByUserIdAndDate(@Param("userId") int userId , @Param("performedDate") LocalDate performedDate);
-    List<UnifiedLogDate> findAllUnifiedLogDatesByUserId(@Param("userId") int userId);
+    List<LocalDate> findLogDatesByUserAndMonth(@Param("userId") int userId, @Param("year") int year, @Param("month") int month);
 }

@@ -53,4 +53,24 @@
         ORDER BY performed_date DESC
     </select>
 
+    <select id="findLogDatesByUserAndMonth" resultType="java.time.LocalDate">
+        SELECT DISTINCT performed_date
+        FROM (
+                 SELECT performed_date
+                 FROM exercise_logs
+                 WHERE user_id = #{userId}
+                   AND EXTRACT(YEAR FROM performed_date) = #{year}
+                   AND EXTRACT(MONTH FROM performed_date) = #{month}
+
+                 UNION
+
+                 SELECT rl.performed_date
+                 FROM routine_logs rl
+                 WHERE rl.user_id = #{userId}
+                   AND EXTRACT(YEAR FROM rl.performed_date) = #{year}
+                   AND EXTRACT(MONTH FROM rl.performed_date) = #{month}
+             ) AS logs
+        ORDER BY performed_date
+    </select>
+
 </mapper>

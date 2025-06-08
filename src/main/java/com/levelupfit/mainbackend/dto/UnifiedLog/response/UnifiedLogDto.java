@@ -11,5 +11,5 @@ public class UnifiedLogDto {
     private LocalDate performed_date;
     private String log_type;        // "EXERCISE" or "ROUTINE"
     private String name;
-    private String targetMuscle;   // 루틴일 경우 null 가능
+    private String target_muscle;   // 루틴일 경우 null 가능
 }

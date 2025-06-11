@@ -33,9 +33,9 @@ public class RoutineDTO {
                 routine.getRoutineId(),
                 routine.getUserId(),
                 routine.getName(),
-                routine.getDescription(),
                 routine.getTargetMuscle(),
                 routine.getThumbnailUrl(),
+                routine.getDescription(),
                 routine.getDifficulty(),
                 routine.getCreatedAt()
         );

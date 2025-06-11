@@ -63,9 +63,9 @@ public class RoutineExerciseService {
     }
 
     //루틴 종목 조회
-    public ApiResponse<List<RoutineExerciseDTO>> getRoutineExercises(RoutineExerciseGetRequest routineExerciseGetRequest) {
+    public ApiResponse<List<RoutineExerciseDTO>> getRoutineExercises(int routineId) {
         try {
-            List<RoutineExerciseDTO> list = routineExerciseRepository.findByRoutineRoutineId(routineExerciseGetRequest.getRoutineId())
+            List<RoutineExerciseDTO> list = routineExerciseRepository.findByRoutineRoutineId(routineId)
                     .stream()
                     .map(RoutineExerciseDTO::fromRoutineExercise)
                     .toList();

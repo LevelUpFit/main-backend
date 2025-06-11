@@ -20,9 +20,11 @@ import java.util.List;
 public class UserLogController {
 
     private final UserLogsServise userLogsServise;
+    
+    //@ModelAttribute는 GET/POST용청을 둘다 수용가능하며 param이든 body든 받을 수 있음
 
     @GetMapping("/date")
-    private ResponseEntity<ApiResponse<List<LocalDate>>> getUnifiedLogDate(@RequestBody LogDateSearchRequest request) {
+    private ResponseEntity<ApiResponse<List<LocalDate>>> getUnifiedLogDate(@ModelAttribute LogDateSearchRequest request) {
         ApiResponse<List<LocalDate>> response = userLogsServise.getLogDates(request);
         if(response.isSuccess()){
             return ResponseEntity.ok(response);
@@ -32,7 +34,7 @@ public class UserLogController {
     }
 
     @GetMapping("/date-detail")
-    private ResponseEntity<ApiResponse<List<UnifiedLogDto>>> getUserLogsByUserIdAndDate(@RequestBody LogSearchRequest request) {
+    private ResponseEntity<ApiResponse<List<UnifiedLogDto>>> getUserLogsByUserIdAndDate(@ModelAttribute LogSearchRequest request) {
         ApiResponse<List<UnifiedLogDto>> response = userLogsServise.getAllUserlogs(request);
         if(response.isSuccess()){
             return ResponseEntity.ok(response);

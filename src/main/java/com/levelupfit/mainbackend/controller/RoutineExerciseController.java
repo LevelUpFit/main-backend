@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@CrossOrigin(origins = "http://localhost:4000")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/routines-exercises")

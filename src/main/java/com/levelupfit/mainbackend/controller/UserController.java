@@ -20,7 +20,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.HashMap;
 import java.util.Map;
 
-@CrossOrigin(origins = "http://localhost:4000")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/user")

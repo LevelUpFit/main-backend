@@ -40,9 +40,9 @@ public class RoutineExerciseController {
     }
 
     //루틴 종복 조회 메서드
-    @GetMapping
-    public ResponseEntity<ApiResponse<List<RoutineExerciseDTO>>> updateRoutineExercise(@RequestBody RoutineExerciseGetRequest routineExerciseGetRequest) {
-        ApiResponse<List<RoutineExerciseDTO>> response = routineExerciseService.getRoutineExercises(routineExerciseGetRequest);
+    @GetMapping("/{routineId}")
+    public ResponseEntity<ApiResponse<List<RoutineExerciseDTO>>> updateRoutineExercise(@PathVariable int routineId) {
+        ApiResponse<List<RoutineExerciseDTO>> response = routineExerciseService.getRoutineExercises(routineId);
         if(response.isSuccess()) {
             return ResponseEntity.ok(response);
         } else {

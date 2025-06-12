@@ -13,15 +13,17 @@ public class RoutineExerciseDTO {
     private int exerciseId;
     private int sets;
     private List<Integer> reps;
+    private List<Integer> weight;
     private Integer restTime;
     private int exerciseOrder;
 
-    public RoutineExerciseDTO(int id, int routineId, int exerciseId, int sets, List<Integer> reps, Integer restTime, int exerciseOrder) {
+    public RoutineExerciseDTO(int id, int routineId, int exerciseId, int sets, List<Integer> reps, List<Integer> weight, Integer restTime, int exerciseOrder) {
         this.id = id;
         this.routineId = routineId;
         this.exerciseId = exerciseId;
         this.sets = sets;
         this.reps = reps;
+        this.weight = weight;
         this.restTime = restTime;
         this.exerciseOrder = exerciseOrder;
     }
@@ -33,6 +35,7 @@ public class RoutineExerciseDTO {
                 routineExercise.getExercise().getExerciseId(),
                 routineExercise.getSets(),
                 Arrays.asList(routineExercise.getReps()), //배열 -> List
+                Arrays.asList(routineExercise.getWeight()),
                 routineExercise.getRestTime(),
                 routineExercise.getExerciseOrder()
         );

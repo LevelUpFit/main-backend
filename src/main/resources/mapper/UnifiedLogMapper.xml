@@ -30,6 +30,7 @@
 
     <select id="findAllLogsByUserIdAndDate" resultType="com.levelupfit.mainbackend.dto.UnifiedLog.response.UnifiedLogDto">
         SELECT
+            exercise_log_id AS id,
             performed_date,
             'EXERCISE' AS log_type,
             name,
@@ -41,6 +42,7 @@
         UNION ALL
 
         SELECT
+            rl.routine_log_id AS id,
             rl.performed_date,
             'ROUTINE' AS log_type,
             r.name,

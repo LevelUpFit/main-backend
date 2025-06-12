@@ -44,6 +44,7 @@ public class RoutineExerciseService {
                         .exercise(exerciseRepository.findById(routineExerciseDTO.getExerciseId()))
                         .sets(routineExerciseDTO.getSets())
                         .reps(routineExerciseDTO.getReps().toArray(new Integer[0]))
+                        .weight(routineExerciseDTO.getWeight().toArray(new Integer[0]))
                         .restTime(routineExerciseDTO.getRestTime())
                         .exerciseOrder(routineExerciseDTO.getRoutineId())
                         .build();
@@ -138,6 +139,7 @@ public class RoutineExerciseService {
         return !Objects.equals(entity.getExerciseOrder(), dto.getExerciseOrder()) ||
                 !Objects.equals(entity.getSets(), dto.getSets()) ||
                 !Objects.equals(convertArrayToList(entity.getReps()), dto.getReps()) ||
+                !Objects.equals(convertArrayToList(entity.getWeight()), dto.getWeight()) ||
                 !Objects.equals(entity.getExercise(), exerciseRepository.findById(dto.getExerciseId())) ||
                 !Objects.equals(entity.getRestTime(), dto.getRestTime());
     }

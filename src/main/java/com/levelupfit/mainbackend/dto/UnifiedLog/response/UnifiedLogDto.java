@@ -8,6 +8,7 @@ import java.time.LocalDate;
 
 @Data
 public class UnifiedLogDto {
+    private int id;
     private LocalDate performed_date;
     private String log_type;        // "EXERCISE" or "ROUTINE"
     private String name;

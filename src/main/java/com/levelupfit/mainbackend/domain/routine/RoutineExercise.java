@@ -42,6 +42,10 @@ public class RoutineExercise {
     @Column(columnDefinition = "integer[]", nullable = false)
     private Integer[] reps;
 
+    @JdbcTypeCode(SqlTypes.ARRAY)
+    @Column(columnDefinition = "integer[]", nullable = false)
+    private Integer[] weight;
+
     @Column(name = "rest_time")
     private Integer restTime; //null 허용을 위해 Integer 타입 선택
 
@@ -53,6 +57,7 @@ public class RoutineExercise {
         this.setExercise(exercise);
         this.sets = dto.getSets();
         this.reps = dto.getReps().toArray(new Integer[0]);
+        this.reps = dto.getWeight().toArray(new Integer[0]);
         this.restTime = dto.getRestTime();
     }
 
@@ -62,6 +67,7 @@ public class RoutineExercise {
         re.setExercise(exercise);
         re.setSets(req.getSets());
         re.setReps(req.getReps().toArray(new Integer[0]));
+        re.setWeight(req.getReps().toArray(new Integer[0]));
         re.setRestTime(req.getRestTime());
         re.setExerciseOrder(req.getExerciseOrder());
         // Routine은 service에서 set 해줌

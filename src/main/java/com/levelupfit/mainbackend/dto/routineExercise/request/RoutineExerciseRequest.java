@@ -10,6 +10,7 @@ public class RoutineExerciseRequest {
     private int exerciseId;
     private int sets;
     private List<Integer> reps;
+    private List<Integer> weight;
     private Integer restTime;
     private int exerciseOrder;
 }

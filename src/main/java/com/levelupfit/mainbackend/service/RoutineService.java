@@ -10,7 +10,6 @@ import com.levelupfit.mainbackend.dto.routine.request.RoutinePatchRequest;
 import com.levelupfit.mainbackend.repository.RoutineRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.apache.ibatis.jdbc.Null;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,12 +23,20 @@ public class RoutineService {
     //루틴 생성
     public ApiResponse<RoutineDTO> createRoutine(RoutineCreateRequest routineCreateRequest) {
         try{
+            String url = switch (routineCreateRequest.getTargetMuscle()) {
+                case "하체" -> "levelupfit-profile/exercise/leg.png";
+                case "가슴" -> "levelupfit-profile/exercise/chest.png";
+                case "어깨" -> "levelupfit-profile/exercise/shoulder.png";
+                case "팔" -> "levelupfit-profile/exercise/arm.png";
+                case "등" -> "levelupfit-profile/exercise/back.png";
+                default -> "levelupfit-profile/exercise/default.png";
+            };
 
             Routine routine = Routine.builder()
                     .userId(routineCreateRequest.getUserId())
                     .name(routineCreateRequest.getName())
                     .targetMuscle(routineCreateRequest.getTargetMuscle())
-                    .thumbnailUrl("example.com"+routineCreateRequest.getTargetMuscle())
+                    .thumbnailUrl(url)
                     .description(routineCreateRequest.getDescription())
                     .difficulty(routineCreateRequest.getDifficulty())
                     .build();

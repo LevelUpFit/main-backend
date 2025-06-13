@@ -1,10 +1,10 @@
 package com.levelupfit.mainbackend.service;
 
 import com.levelupfit.mainbackend.domain.enums.ProviderTypeEnum;
-import com.levelupfit.mainbackend.domain.user.FormUser;
 import com.levelupfit.mainbackend.domain.user.SocialUser;
 import com.levelupfit.mainbackend.domain.user.User;
-import com.levelupfit.mainbackend.repository.FormUserRepository;
+import com.levelupfit.mainbackend.dto.ApiResponse;
+import com.levelupfit.mainbackend.dto.user.response.LoginResponse;
 import com.levelupfit.mainbackend.repository.SocialUserRepository;
 import com.levelupfit.mainbackend.repository.UserRepository;
 import com.levelupfit.mainbackend.util.JwtUtils;
@@ -16,7 +16,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -116,7 +115,7 @@ public class KakaoService {
 
     //카카오 로그인 핸들링 accessToken -> userinfo -> email -> 신규/기존 회원 판별
     @Transactional
-    public int handleKakaoLogin(String code) {
+    public ApiResponse<LoginResponse> handleKakaoLogin(String code) {
         System.out.println("Authorization code: " + code);
         HashMap<String, String> result =   new HashMap<>();
         // Access Token 요청
@@ -147,40 +146,54 @@ public class KakaoService {
                 String userAccessToken = jwtUtils.createAccessToken(emailstr);
                 String refreshToken = jwtUtils.createRefreshToken(emailstr);
 
+                if(!userRepository.existsByEmail(emailstr)){
+                    User user = User.builder()
+                            .email(emailstr)
+                            .nickname("헬린이1")
+                            .dob(LocalDate.parse("9000-12-31"))
+                            .level(1)
+                            .gender("male")
+                            .profile("test")
+                            .access_token(userAccessToken)
+                            .refresh_token(refreshToken)
+                            .build();
 
-                User user = User.builder()
-                        .email(emailstr)
-                        .nickname("헬린이1")
-                        .dob(LocalDate.parse("9000-12-31"))
-                        .level(1)
-                        .gender("male")
-                        .profile("test")
-                        .access_token(userAccessToken)
-                        .refresh_token(refreshToken)
-                        .build();
+                    User saveduser = userRepository.save(user);
 
+                    SocialUser socialUser = SocialUser.builder()
+                            .user(saveduser) //여기 로직 손봐야함
+                            .providerType(ProviderTypeEnum.KAKAO)
+                            .email(emailstr)
+                            .build();
+                    socialUserRepository.save(socialUser);
 
+                    LoginResponse response = new LoginResponse();
+                    response.setUserId(saveduser.getUserid());
+                    response.setNickname(saveduser.getNickname());
+                    response.setProfile(saveduser.getProfile());
+                    response.setLevel(saveduser.getLevel());
+                    response.setAccessToken(accessToken);
+                    response.setRefreshToken(refreshToken);
 
-                User saveduser = userRepository.save(user);
-
-                SocialUser socialUser = SocialUser.builder()
-                        .user(saveduser) //여기 로직 손봐야함
-                        .providerType(ProviderTypeEnum.KAKAO)
-                        .email(emailstr)
-                        .build();
-
-
-                socialUserRepository.save(socialUser);
+                    return ApiResponse.ok(response,201);
+                }
             } else {
-                return 409;
+
+                User user = userRepository.findByEmail(emailstr);
+                LoginResponse response = new LoginResponse();
+                response.setUserId(user.getUserid());
+                response.setNickname(user.getNickname());
+                response.setProfile(user.getProfile());
+                response.setLevel(user.getLevel());
+                response.setAccessToken(user.getAccess_token());
+                response.setRefreshToken(user.getRefresh_token());
+                return ApiResponse.ok(response,200);
             }
 
         } catch (Exception e) {
-            throw new RuntimeException("DB 저장 중 오류", e);
-            //return 500;
-            //throw new RuntimeException("회원가입 처리 중 오류가 발생하였습니다.", e);
+            return ApiResponse.fail("소셜 로그인 오류",500);
         }
-        return 201;
+        return ApiResponse.fail("알 수 없는 오류",500);
     }
 
     //많이 생각해봐야할듯 ㅇㅇ

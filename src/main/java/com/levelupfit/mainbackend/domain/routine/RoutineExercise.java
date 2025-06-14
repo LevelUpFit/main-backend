@@ -67,7 +67,7 @@ public class RoutineExercise {
         re.setExercise(exercise);
         re.setSets(req.getSets());
         re.setReps(req.getReps().toArray(new Integer[0]));
-        re.setWeight(req.getReps().toArray(new Integer[0]));
+        re.setWeight(req.getWeight().toArray(new Integer[0]));
         re.setRestTime(req.getRestTime());
         re.setExerciseOrder(req.getExerciseOrder());
         // Routine은 service에서 set 해줌

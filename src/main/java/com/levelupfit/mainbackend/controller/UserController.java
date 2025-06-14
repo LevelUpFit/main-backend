@@ -89,24 +89,14 @@ public class UserController {
     }
 
     //카카오 로그인 처리가 이루어지는 곳
-    @PostMapping("/callback")
-    public ResponseEntity<Map<String, String>> checkUser(@RequestParam("code") String code) {
-        int result = kakaoService.handleKakaoLogin(code);
-        Map<String, String> responseMap = new HashMap<>();
-        return switch (result) {
-            case 200 -> {
-                responseMap.put("message", "로그인 성공");
-                yield ResponseEntity.status(HttpStatus.OK).body(responseMap);
-            }
-            case 401 -> {
-                responseMap.put("message", "아이디 혹은 비밀번호가 일치하지 않습니다.");
-                yield ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseMap);
-            }
-            default -> {
-                responseMap.put("message", "정의되지 않은 오류가 발생했습니다.");
-                yield ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseMap);
-            }
-        };
+    @GetMapping("/callback")
+    public ResponseEntity<ApiResponse<LoginResponse>> checkUser(@RequestParam("code") String code) {
+        ApiResponse<LoginResponse> response = kakaoService.handleKakaoLogin(code);
+        if(response.isSuccess()){
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
     }
 
     //유저 정보 조회

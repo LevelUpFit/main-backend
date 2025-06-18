@@ -18,7 +18,7 @@ public class ExerciseFeedbacks {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "feedback_id")
-    private Long feedbackId;
+    private int feedbackId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -40,6 +40,4 @@ public class ExerciseFeedbacks {
     @Column(name = "performed_date", nullable = false)
     private LocalDate performedDate;
 
-    @Column(name = "keypoint_data", columnDefinition = "JSONB")
-    private String keypointData; // JSONB는 String으로 매핑
 }

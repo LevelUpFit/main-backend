@@ -12,7 +12,7 @@ import com.levelupfit.mainbackend.domain.feedbacks.ExerciseFeedbacks;
 @Builder
 public class ExerciseFeedbacksDTO {
 
-    private Long feedbackId;
+    private int feedbackId;
 
     private int userId;
 
@@ -37,7 +37,6 @@ public class ExerciseFeedbacksDTO {
                 .feedbackText(feedback.getFeedbackText())
                 .accuracy(feedback.getAccuracy())
                 .performedDate(feedback.getPerformedDate())
-                .keypointData(feedback.getKeypointData())
                 .build();
     }
 

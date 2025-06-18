@@ -3,7 +3,9 @@ package com.levelupfit.mainbackend.service;
 import com.levelupfit.mainbackend.domain.exercise.Exercise;
 import com.levelupfit.mainbackend.dto.ApiResponse;
 import com.levelupfit.mainbackend.dto.exercise.ExerciseDTO;
+import com.levelupfit.mainbackend.dto.exercise.MybatisExercise;
 import com.levelupfit.mainbackend.dto.exercise.request.ExerciseCreateRequest;
+import com.levelupfit.mainbackend.mapper.ExerciseMapper;
 import com.levelupfit.mainbackend.repository.ExerciseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ExerciseService {
     private final ExerciseRepository exerciseRepository;
+    private final ExerciseMapper exerciseMapper;
 
     //운동 생성
     public ApiResponse<ExerciseDTO> ExerciseCreate(ExerciseCreateRequest exerciseDTO) {
@@ -71,6 +74,16 @@ public class ExerciseService {
             return ApiResponse.fail("운동 조회중 오류발생",500);
         }
 
+    }
+
+    //피드백 가능 운동 조회
+    public ApiResponse<List<MybatisExercise>> findFeedbackExercises() {
+        try{
+            List<MybatisExercise> list = exerciseMapper.findFeedbackExercises();
+            return ApiResponse.ok(list, 200);
+        } catch (Exception e){
+            return ApiResponse.fail("운동 조회중 오류", 500);
+        }
     }
     
 }

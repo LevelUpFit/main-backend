@@ -45,4 +45,9 @@ public class ExercisesController {
             return ResponseEntity.badRequest().body(responseDTO);
         }
     }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<ExerciseDTO>>> getFeedbackExercises() {
+
+    }
 }

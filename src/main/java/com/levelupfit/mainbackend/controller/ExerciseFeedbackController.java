@@ -3,7 +3,7 @@ package com.levelupfit.mainbackend.controller;
 import com.levelupfit.mainbackend.dto.ApiResponse;
 import com.levelupfit.mainbackend.dto.feedback.ExerciseFeedbacksDTO;
 import com.levelupfit.mainbackend.dto.feedback.request.ExerciseFeedbackRequest;
-import com.levelupfit.mainbackend.service.ExerciseFeedbackService;
+import com.levelupfit.mainbackend.service.feedback.ExerciseFeedbackService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

@@ -1,4 +1,4 @@
-package com.levelupfit.mainbackend.service;
+package com.levelupfit.mainbackend.service.feedback;
 
 import com.levelupfit.mainbackend.domain.exercise.Exercise;
 import com.levelupfit.mainbackend.domain.feedbacks.ExerciseFeedbacks;
@@ -10,9 +10,10 @@ import com.levelupfit.mainbackend.dto.feedback.response.FeedbackresultDTO;
 import com.levelupfit.mainbackend.repository.ExerciseFeedbackRepository;
 import com.levelupfit.mainbackend.repository.ExerciseRepository;
 import com.levelupfit.mainbackend.repository.UserRepository;
+import com.levelupfit.mainbackend.service.FastApiWebClientService;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 
@@ -24,6 +25,7 @@ public class ExerciseFeedbackService {
     private final UserRepository userRepository;
     private final ExerciseFeedbackRepository exerciseFeedbackRepository;
     private final FastApiWebClientService fastApiWebClientService;
+    private final FeedbacksUpdateService feedbacksUpdateService;
 
     public ApiResponse<ExerciseFeedbacksDTO> createFeedback(ExerciseFeedbackRequest request) {
         if(!userRepository.existsByUserid(request.getUserId())) return ApiResponse.fail("유저 정보를 찾을 수 없습니다.",404);
@@ -58,15 +60,12 @@ public class ExerciseFeedbackService {
         fastApiWebClientService.sendToFastApi(request)
                 .subscribe(result -> {
                     // 성공 처리
+                    feedbacksUpdateService.updateFeedback(result);
                     System.out.println("결과: " + result);
                 }, error -> {
                     // 에러 처리
-                    System.out.println("asd");
+                    System.out.println("error");
                 });
-    }
-
-    public void handleFeedbackResult(FeedbackresultDTO result){
-
     }
 
 }

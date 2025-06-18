@@ -16,6 +16,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -27,6 +28,7 @@ public class ExerciseFeedbackService {
     private final FastApiWebClientService fastApiWebClientService;
     private final FeedbacksUpdateService feedbacksUpdateService;
 
+    //피드백 초안 저장
     public ApiResponse<ExerciseFeedbacksDTO> createFeedback(ExerciseFeedbackRequest request) {
         if(!userRepository.existsByUserid(request.getUserId())) return ApiResponse.fail("유저 정보를 찾을 수 없습니다.",404);
         User user = userRepository.findByUserid(request.getUserId());
@@ -56,6 +58,7 @@ public class ExerciseFeedbackService {
 
     }
 
+    //FastApi로 동영상 보내기
     public void sendVideo(ExerciseFeedbackRequest request) throws IOException {
         fastApiWebClientService.sendToFastApi(request)
                 .subscribe(result -> {
@@ -66,6 +69,25 @@ public class ExerciseFeedbackService {
                     // 에러 처리
                     System.out.println("error");
                 });
+    }
+
+    //피드백 기록 조회(회원)
+    public ApiResponse<List<ExerciseFeedbacksDTO>> getFeedbackByUserId(int userId) {
+        try{
+            if(userRepository.existsByUserid(userId)) {
+                User user = userRepository.findByUserid(userId);
+                List<ExerciseFeedbacksDTO> dto = exerciseFeedbackRepository.findAllByUser(user)
+                        .stream()
+                        .map(ExerciseFeedbacksDTO::fromEntity)
+                        .toList();
+
+                return ApiResponse.ok(dto,200);
+            } else {
+                return ApiResponse.fail("유저 정보를 조회할 수 없습니다.",404);
+            }
+        } catch (Exception e) {
+            return ApiResponse.fail("피드백 조회중 오류", 500);
+        }
     }
 
 }

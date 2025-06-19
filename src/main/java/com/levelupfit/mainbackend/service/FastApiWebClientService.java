@@ -1,5 +1,8 @@
 package com.levelupfit.mainbackend.service;
 
+import com.levelupfit.mainbackend.dto.feedback.request.ExerciseFeedbackRequest;
+import com.levelupfit.mainbackend.dto.feedback.response.FeedbackresultDTO;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.stereotype.Service;
@@ -18,18 +21,29 @@ public class FastApiWebClientService {
         this.webClient = webClient;
     }
 
-    public Mono<String> sendToFastApi(MultipartFile video, int exerciseId, int feedbackId) throws IOException {
+    public Mono<FeedbackresultDTO> sendToFastApi(ExerciseFeedbackRequest request) throws IOException {
         MultipartBodyBuilder builder = new MultipartBodyBuilder();
-        builder.part("video", video.getResource());
-        builder.part("exercise_id", exerciseId);
-        builder.part("feedback_id", feedbackId);
+
+        MultipartFile video = request.getVideo();
+        byte[] bytes = video.getBytes();
+
+        ByteArrayResource videoResource = new ByteArrayResource(bytes) {
+            @Override
+            public String getFilename() {
+                return video.getOriginalFilename(); // 안 하면 null 처리됨
+            }
+        };
+        builder.part("file", videoResource)
+                .header("Content-Disposition", "form-data; name=file; filename=" + video.getOriginalFilename());
+        builder.part("exercise_id", request.getExerciseId());
+        builder.part("feedback_id", request.getFeedbackId());
 
         return webClient.post()
-                .uri("http://localhost:8000/analyze") //코드 env설정 후 수정
+                .uri("http://localhost:8000/pose/analyze") //코드 env설정 후 수정
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .bodyValue(builder.build())
                 .retrieve()
-                .bodyToMono(String.class);
+                .bodyToMono(FeedbackresultDTO.class);
     }
 
 }

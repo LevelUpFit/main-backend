@@ -2,6 +2,7 @@ package com.levelupfit.mainbackend.controller;
 
 import com.levelupfit.mainbackend.dto.ApiResponse;
 import com.levelupfit.mainbackend.dto.exercise.ExerciseDTO;
+import com.levelupfit.mainbackend.dto.exercise.MybatisExercise;
 import com.levelupfit.mainbackend.dto.exercise.request.ExerciseCreateRequest;
 import com.levelupfit.mainbackend.service.ExerciseService;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +43,16 @@ public class ExercisesController {
         if(responseDTO.isSuccess()) {
             return ResponseEntity.ok(responseDTO);
         } else{
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+    }
+
+    @GetMapping("/feedback-exercise")
+    public ResponseEntity<ApiResponse<List<MybatisExercise>>> getFeedbackExercises() {
+        ApiResponse<List<MybatisExercise>> responseDTO = exerciseService.findFeedbackExercises();
+        if(responseDTO.isSuccess()) {
+            return ResponseEntity.ok(responseDTO);
+        } else {
             return ResponseEntity.badRequest().body(responseDTO);
         }
     }

@@ -8,4 +8,6 @@ public class FeedbackresultDTO {
     private String video_url;
     private String feedback_text;
     private float accuracy;
+    private float movementRange;
+    private float movementSpeed;
 }

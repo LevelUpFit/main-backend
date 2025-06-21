@@ -22,6 +22,8 @@ public class FeedbacksUpdateService {
         feedbacks.setFeedbackText(result.getFeedback_text());
         feedbacks.setVideoUrl(result.getVideo_url());
         feedbacks.setAccuracy(result.getAccuracy());
+        feedbacks.setMovementRange(result.getMovementRange());
+        feedbacks.setMovementSpeed(result.getMovementSpeed());
 
         feedbackWebSocketHandler.sendAnalysisCompleteMessage(Integer.parseInt(result.getFeedback_id()));
     }

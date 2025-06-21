@@ -28,6 +28,9 @@ public class ExerciseFeedbacks {
     @JoinColumn(name = "exercise_id")
     private Exercise exercise;
 
+    @Column(name="level")
+    private int level;
+
     @Column(name = "video_url", nullable = false, columnDefinition = "TEXT")
     private String videoUrl;
 
@@ -36,6 +39,12 @@ public class ExerciseFeedbacks {
 
     @Column(name = "accuracy")
     private Float accuracy;
+
+    @Column(name="movement_range")
+    private Float movementRange;
+
+    @Column(name="movement_speed")
+    private Float movementSpeed;
 
     @Column(name = "performed_date", nullable = false)
     private LocalDate performedDate;

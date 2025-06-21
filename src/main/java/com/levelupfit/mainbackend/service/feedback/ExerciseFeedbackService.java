@@ -39,6 +39,7 @@ public class ExerciseFeedbackService {
                         .builder()
                         .user(user)
                         .exercise(exercise)
+                        .level(request.getLevel())
                         .performedDate(request.getPerformedDate())
                         .build();
                 ExerciseFeedbacks saveDate = exerciseFeedbackRepository.save(exerciseFeedbacks);

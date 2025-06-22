@@ -28,7 +28,7 @@ public class ExerciseFeedbacksDTO {
 
     private Float movementRange;
 
-    private Float movementSpeed;
+    private MovementSpeedInfo movementSpeed;
 
     private LocalDate performedDate;
 

@@ -69,6 +69,7 @@ public class ExerciseFeedbackService {
                 }, error -> {
                     // 에러 처리
                     System.out.println("error");
+                    System.out.println("error: " + error.getMessage());
                 });
     }
 

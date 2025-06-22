@@ -2,6 +2,8 @@ package com.levelupfit.mainbackend.domain.feedbacks;
 
 import com.levelupfit.mainbackend.domain.exercise.Exercise;
 import com.levelupfit.mainbackend.domain.user.User;
+import com.levelupfit.mainbackend.dto.feedback.MovementSpeedInfo;
+import com.levelupfit.mainbackend.util.MovementSpeedConverter;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDate;
@@ -43,8 +45,9 @@ public class ExerciseFeedbacks {
     @Column(name="movement_range")
     private Float movementRange;
 
-    @Column(name="movement_speed")
-    private Float movementSpeed;
+    @Convert(converter = MovementSpeedConverter.class)
+    @Column(name="movement_speed", columnDefinition = "TEXT")
+    private MovementSpeedInfo movementSpeed;
 
     @Column(name = "performed_date", nullable = false)
     private LocalDate performedDate;

@@ -42,7 +42,7 @@ public class FastApiWebClientService {
 
 
         return webClient.post()
-                .uri("http://localhost:8000/pose/analyze") //코드 env설정 후 수정
+                .uri("https://levelupfit.treebomb.org/pose-api/pose/analyze") //코드 env설정 후 수정
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .bodyValue(builder.build())
                 .retrieve()

@@ -39,6 +39,7 @@ public class ExerciseFeedbackService {
                         .builder()
                         .user(user)
                         .exercise(exercise)
+                        .level(request.getLevel())
                         .performedDate(request.getPerformedDate())
                         .build();
                 ExerciseFeedbacks saveDate = exerciseFeedbackRepository.save(exerciseFeedbacks);
@@ -68,6 +69,7 @@ public class ExerciseFeedbackService {
                 }, error -> {
                     // 에러 처리
                     System.out.println("error");
+                    System.out.println("error: " + error.getMessage());
                 });
     }
 

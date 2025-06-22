@@ -1,5 +1,6 @@
 package com.levelupfit.mainbackend.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.levelupfit.mainbackend.dto.feedback.request.ExerciseFeedbackRequest;
 import com.levelupfit.mainbackend.dto.feedback.response.FeedbackresultDTO;
 import org.springframework.core.io.ByteArrayResource;
@@ -37,6 +38,8 @@ public class FastApiWebClientService {
                 .header("Content-Disposition", "form-data; name=file; filename=" + video.getOriginalFilename());
         builder.part("exercise_id", request.getExerciseId());
         builder.part("feedback_id", request.getFeedbackId());
+        builder.part("level", request.getLevel());
+
 
         return webClient.post()
                 .uri("http://localhost:8000/pose/analyze") //코드 env설정 후 수정

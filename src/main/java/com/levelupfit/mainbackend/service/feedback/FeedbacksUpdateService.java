@@ -18,11 +18,13 @@ public class FeedbacksUpdateService {
 
     @Transactional
     public void updateFeedback(FeedbackresultDTO result) {
-        ExerciseFeedbacks feedbacks = exerciseFeedbackRepository.findByFeedbackId(Integer.parseInt(result.getFeedback_id()));
+        ExerciseFeedbacks feedbacks = exerciseFeedbackRepository.findByFeedbackId(result.getFeedback_id());
         feedbacks.setFeedbackText(result.getFeedback_text());
         feedbacks.setVideoUrl(result.getVideo_url());
         feedbacks.setAccuracy(result.getAccuracy());
+        feedbacks.setMovementRange(result.getMovementRange());
+        feedbacks.setMovementSpeed(result.getMovementSpeed());
 
-        feedbackWebSocketHandler.sendAnalysisCompleteMessage(Integer.parseInt(result.getFeedback_id()));
+        feedbackWebSocketHandler.sendAnalysisCompleteMessage(result.getFeedback_id());
     }
 }

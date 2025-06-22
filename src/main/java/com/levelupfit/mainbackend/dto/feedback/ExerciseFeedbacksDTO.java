@@ -18,11 +18,17 @@ public class ExerciseFeedbacksDTO {
 
     private int exerciseId;
 
+    private int level;
+
     private String videoUrl;
 
     private String feedbackText;
 
     private Float accuracy;
+
+    private Float movementRange;
+
+    private MovementSpeedInfo movementSpeed;
 
     private LocalDate performedDate;
 
@@ -33,9 +39,12 @@ public class ExerciseFeedbacksDTO {
                 .feedbackId(feedback.getFeedbackId())
                 .userId(feedback.getUser().getUserid())
                 .exerciseId(feedback.getExercise().getExerciseId())
+                .level(feedback.getLevel())
                 .videoUrl(feedback.getVideoUrl())
                 .feedbackText(feedback.getFeedbackText())
                 .accuracy(feedback.getAccuracy())
+                .movementRange(feedback.getMovementRange())
+                .movementSpeed(feedback.getMovementSpeed())
                 .performedDate(feedback.getPerformedDate())
                 .build();
     }

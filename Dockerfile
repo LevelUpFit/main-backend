@@ -1,27 +1,42 @@
-# Step 1: Gradle 빌드 단계
-FROM gradle:8.5-jdk17 AS build
+# Dockerfile for pose-backend
+# FastAPI + MediaPipe 운동 자세 분석 서비스
+
+FROM python:3.11-slim
+
+# 시스템 패키지 설치
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    libgomp1 \
+    libgl1 \
+    libglx-mesa0 \
+    wget \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# 의존성 캐시 최적화를 위한 단계
-COPY build.gradle settings.gradle ./
-COPY gradle gradle
-RUN gradle dependencies || true
+# requirements.txt 복사 및 의존성 설치
+COPY requirements.txt .
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-# 전체 프로젝트 복사 및 빌드
+# 애플리케이션 코드 복사
 COPY . .
-RUN gradle clean build -x test
 
-# Step 2: 실행 단계
-FROM openjdk:17-jdk-slim
+# .env 파일 복사 (Jenkins에서 생성)
+# COPY .env .env
 
-WORKDIR /app
+# 포트 노출
+EXPOSE 8000
 
-# 빌드된 JAR 복사
-COPY --from=build /app/build/libs/*.jar app.jar
+# 헬스체크
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
 
-# HTTPS 포트 노출
-EXPOSE 8081
-
-# 실행
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Uvicorn으로 FastAPI 실행
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

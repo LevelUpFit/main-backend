@@ -1,6 +1,5 @@
 package com.levelupfit.mainbackend.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.levelupfit.mainbackend.dto.feedback.request.ExerciseFeedbackRequest;
 import com.levelupfit.mainbackend.dto.feedback.response.FeedbackresultDTO;
 import org.springframework.core.io.ByteArrayResource;
@@ -10,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.IOException;
 
@@ -17,6 +17,9 @@ import java.io.IOException;
 public class FastApiWebClientService {
 
     private final WebClient webClient;
+
+    @Value("${POSE_URL}")
+    private String poseUrl;
 
     public FastApiWebClientService(WebClient webClient) {
         this.webClient = webClient;
@@ -42,7 +45,7 @@ public class FastApiWebClientService {
 
 
         return webClient.post()
-                .uri("") //코드 env설정 후 수정
+                .uri(poseUrl) //env lunge만 적용되어 있음
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .bodyValue(builder.build())
                 .retrieve()

@@ -1,14 +1,18 @@
 package com.levelupfit.mainbackend.config;
 
 import com.levelupfit.mainbackend.handler.FeedbackWebSocketHandler;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.config.annotation.*;
 
 @Configuration
 @EnableWebSocket
 public class WebSocketConfig implements WebSocketConfigurer{
-    private final FeedbackWebSocketHandler feedbackWebSocketHandler;
 
+    @Autowired
+    private FeedbackWebSocketHandler feedbackWebSocketHandler;
     public WebSocketConfig(FeedbackWebSocketHandler handler) {
         this.feedbackWebSocketHandler = handler;
     }

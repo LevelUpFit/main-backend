@@ -17,12 +17,22 @@ public class ExerciseFeedbackController {
 
     private final ExerciseFeedbackService exerciseFeedbackService;
 
-    @PostMapping("video")
+    @PostMapping("/video")
     public ResponseEntity<ApiResponse<ExerciseFeedbacksDTO>> createFeedback(ExerciseFeedbackRequest request) {
         ApiResponse<ExerciseFeedbacksDTO> response = exerciseFeedbackService.createFeedback(request);
         if(response.isSuccess()) {
             return ResponseEntity.ok(response);
         } else{
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    @GetMapping("/get-one/{feedbackId}")
+    public ResponseEntity<ApiResponse<ExerciseFeedbacksDTO>> getFeedbackOne(@PathVariable int feedbackId) {
+        ApiResponse<ExerciseFeedbacksDTO> response = exerciseFeedbackService.getFeedbackById(feedbackId);
+        if(response.isSuccess()) {
+            return ResponseEntity.ok(response);
+        } else {
             return ResponseEntity.badRequest().body(response);
         }
     }

@@ -13,6 +13,8 @@ import com.levelupfit.mainbackend.repository.UserRepository;
 import com.levelupfit.mainbackend.service.FastApiWebClientService;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.apache.catalina.core.ApplicationPushBuilder;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -89,6 +91,16 @@ public class ExerciseFeedbackService {
             }
         } catch (Exception e) {
             return ApiResponse.fail("피드백 조회중 오류", 500);
+        }
+    }
+
+    //피드백 id를 통한 단일 조회
+    public ApiResponse<ExerciseFeedbacksDTO> getFeedbackById(int feedbackId) {
+        try{
+            ExerciseFeedbacksDTO result = ExerciseFeedbacksDTO.fromEntity(exerciseFeedbackRepository.findByFeedbackId(feedbackId));
+            return ApiResponse.ok(result,200);
+        } catch (Exception e) {
+            return ApiResponse.fail("피드백 조회 실패",500);
         }
     }
 

@@ -40,11 +40,16 @@ public class FeedbackWebSocketHandler extends TextWebSocketHandler {
         WebSocketSession session = sessionMap.get(feedbackId);
         if (session != null && session.isOpen()) {
             try {
-                session.sendMessage(new TextMessage("{\"type\": \"FEEDBACK_ANALYSIS_COMPLETE\"}"));
+                // feedbackId를 포함한 메시지 전송
+                String message = String.format("{\"type\": \"FEEDBACK_ANALYSIS_COMPLETE\", \"feedbackId\": %d}", feedbackId);
+                session.sendMessage(new TextMessage(message));
+                logger.info("분석 완료 메시지 전송: feedbackId={}", feedbackId);
                 session.close(); // 전송 후 종료
             } catch (IOException e) {
-                logger.error("WebSocket 메시지 전송 중 오류 발생", e); // 로깅 처리 권장
+                logger.error("WebSocket 메시지 전송 중 오류 발생: feedbackId={}", feedbackId, e);
             }
+        } else {
+            logger.warn("WebSocket 세션을 찾을 수 없음: feedbackId={}", feedbackId);
         }
     }
 

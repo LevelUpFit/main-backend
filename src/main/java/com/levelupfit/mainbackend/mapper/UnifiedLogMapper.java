@@ -13,4 +13,7 @@ public interface UnifiedLogMapper {
     List<UnifiedLogDto> findAllLogsByUserId(@Param("userId") int userId);
     List<UnifiedLogDto> findAllLogsByUserIdAndDate(@Param("userId") int userId , @Param("performedDate") LocalDate performedDate);
     List<LocalDate> findLogDatesByUserAndMonth(@Param("userId") int userId, @Param("year") int year, @Param("month") int month);
+    
+    // 운동 기록 단일 조회 (logType: EXERCISE 또는 ROUTINE)
+    UnifiedLogDto findLogById(@Param("logId") int logId, @Param("logType") String logType);
 }

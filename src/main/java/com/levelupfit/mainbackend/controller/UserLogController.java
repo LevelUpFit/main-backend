@@ -42,4 +42,17 @@ public class UserLogController {
         }
     }
 
+    // 운동 기록 단일 조회 (logId와 logType으로 조회)
+    @GetMapping("/detail/{logId}")
+    private ResponseEntity<ApiResponse<UnifiedLogDto>> getLogById(
+            @PathVariable int logId,
+            @RequestParam String logType) {
+        ApiResponse<UnifiedLogDto> response = userLogsServise.getLogById(logId, logType);
+        if(response.isSuccess()){
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.status(response.getCode()).body(response);
+        }
+    }
+
 }

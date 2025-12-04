@@ -149,11 +149,11 @@ public class KakaoService {
                 if(!userRepository.existsByEmail(emailstr)){
                     User user = User.builder()
                             .email(emailstr)
-                            .nickname("헬린이1")
-                            .dob(LocalDate.parse("9000-12-31"))
+                            .nickname("헬린이")
+                            .dob(LocalDate.parse("2001-06-30"))
                             .level(1)
                             .gender("male")
-                            .profile("test")
+                            .profile("levelupfit-profile/profile.png")
                             .access_token(userAccessToken)
                             .refresh_token(refreshToken)
                             .build();

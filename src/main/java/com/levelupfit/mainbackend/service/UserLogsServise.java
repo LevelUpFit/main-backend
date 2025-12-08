@@ -42,4 +42,24 @@ public class UserLogsServise {
         }
 
     }
+
+    // 운동 기록 단일 조회 (logId와 logType으로 조회)
+    public ApiResponse<UnifiedLogDto> getLogById(int logId, String logType) {
+        try {
+            // logType 유효성 검사
+            if (!"EXERCISE".equals(logType) && !"ROUTINE".equals(logType)) {
+                return ApiResponse.fail("잘못된 기록 타입입니다. EXERCISE 또는 ROUTINE만 허용됩니다.", 400);
+            }
+
+            UnifiedLogDto log = unifiedLogMapper.findLogById(logId, logType);
+            
+            if (log == null) {
+                return ApiResponse.fail("해당 기록을 찾을 수 없습니다.", 404);
+            }
+            
+            return ApiResponse.ok(log, 200);
+        } catch (Exception e) {
+            return ApiResponse.fail("기록 조회 중 오류 발생", 500);
+        }
+    }
 }

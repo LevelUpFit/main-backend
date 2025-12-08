@@ -75,4 +75,41 @@
         ORDER BY performed_date
     </select>
 
+    <!-- 운동 기록 단일 조회 -->
+    <select id="findLogById" resultType="com.levelupfit.mainbackend.dto.UnifiedLog.response.UnifiedLogDto">
+        <if test="logType == 'EXERCISE'">
+            SELECT
+                exercise_log_id AS id,
+                performed_date,
+                'EXERCISE' AS log_type,
+                name,
+                target_muscle,
+                feedback,
+                NULL AS routine_id,
+                NULL AS total_volume,
+                NULL AS duration_seconds,
+                NULL AS total_sets,
+                NULL AS exercise_details
+            FROM exercise_logs
+            WHERE exercise_log_id = #{logId}
+        </if>
+        <if test="logType == 'ROUTINE'">
+            SELECT
+                rl.routine_log_id AS id,
+                rl.performed_date,
+                'ROUTINE' AS log_type,
+                r.name,
+                rl.target_muscle,
+                NULL AS feedback,
+                rl.routine_id,
+                rl.total_volume,
+                rl.duration_seconds,
+                rl.total_sets,
+                rl.exercise_details
+            FROM routine_logs rl
+            JOIN routines r ON rl.routine_id = r.routines_id
+            WHERE rl.routine_log_id = #{logId}
+        </if>
+    </select>
+
 </mapper>

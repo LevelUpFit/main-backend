@@ -44,11 +44,9 @@ public class UserService {
     private String DEFAULT_PROFILE_URL;
 
     // 이메일 중복 체크
-    public ApiResponse<Void> checkEmail(CheckEmailDTO email) {
-        if(!userRepository.existsByEmail(email.getEmail())){
-            return ApiResponse.ok();
-        } else{
-            return ApiResponse.fail(400, "이메일 중복");
+    public void checkEmail(CheckEmailDTO email) {
+        if (userRepository.existsByEmail(email.getEmail())) {
+            throw new BusinessException(ErrorCode.EMAIL_DUPLICATION);
         }
     }
 

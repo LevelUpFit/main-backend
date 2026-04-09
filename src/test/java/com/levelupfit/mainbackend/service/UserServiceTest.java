@@ -2,9 +2,9 @@ package com.levelupfit.mainbackend.service;
 
 import com.levelupfit.mainbackend.domain.user.FormUser;
 import com.levelupfit.mainbackend.domain.user.User;
+import com.levelupfit.mainbackend.dto.user.CheckEmailDTO;
 import com.levelupfit.mainbackend.dto.user.LoginRequestDTO;
 import com.levelupfit.mainbackend.dto.user.request.RegisterRequest;
-import com.levelupfit.mainbackend.dto.user.response.LoginResponse;
 import com.levelupfit.mainbackend.exception.BusinessException;
 import com.levelupfit.mainbackend.exception.ErrorCode;
 import com.levelupfit.mainbackend.mapper.FormUserMapper;
@@ -90,5 +90,22 @@ class UserServiceTest {
         });
 
         assertEquals(ErrorCode.LOGIN_FAILED, exception.getErrorCode());
+    }
+
+    @Test
+    @DisplayName("이메일 중복 체크 시 이미 존재하는 이메일이면 EMAIL_DUPLICATION 예외를 던진다.")
+    void checkEmail_EmailDuplication() {
+        // Given
+        CheckEmailDTO dto = new CheckEmailDTO();
+        dto.setEmail("duplicate@test.com");
+
+        when(userRepository.existsByEmail(anyString())).thenReturn(true);
+
+        // When & Then
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            userService.checkEmail(dto);
+        });
+
+        assertEquals(ErrorCode.EMAIL_DUPLICATION, exception.getErrorCode());
     }
 }

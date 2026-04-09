@@ -27,18 +27,9 @@ public class UserController {
 
     // 이메일 중복확인
     @PostMapping("/checkEmail")
-    public ResponseEntity<ApiResponse<Void>> checkEmail(@Valid @RequestBody CheckEmailDTO email, BindingResult result) {
-        if (result.hasErrors()) {
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.fail(400, result.getAllErrors().get(0).getDefaultMessage()));
-        }
-        ApiResponse<Void> response = userService.checkEmail(email);
-
-        if (response.isSuccess()) {
-            return ResponseEntity.status(HttpStatus.OK).body(response);
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-        }
+    public ResponseEntity<ApiResponse<Void>> checkEmail(@Valid @RequestBody CheckEmailDTO email) {
+        userService.checkEmail(email);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok());
     }
 
     // 회원가입

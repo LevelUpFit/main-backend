@@ -42,11 +42,11 @@ public class ExerciseService {
             createdExerciseDTO.setFeedbackAvailable(false);
 
             //DTO 대입해서 API반환 DTO에 넣기
-            return ApiResponse.ok(createdExerciseDTO, 201);
+            return ApiResponse.ok(201, createdExerciseDTO);
 
 
         } catch (Exception e){
-            return ApiResponse.fail("운동 생성중 오류발생",500);
+            return ApiResponse.fail(500, "운동 생성중 오류발생");
 
         }
     }
@@ -58,9 +58,9 @@ public class ExerciseService {
                     .stream()
                     .map(ExerciseDTO::fromExercise) // Entity -> DTO로 변환
                     .toList(); //List로 변환
-            return ApiResponse.ok(list, 200);
+            return ApiResponse.ok(200, list);
         } catch (Exception e){
-            return ApiResponse.fail("운동 조회중 오류발생",500);
+            return ApiResponse.fail(500, "운동 조회중 오류발생");
         }
     }
 
@@ -69,9 +69,9 @@ public class ExerciseService {
         try{
             Exercise exercise = exerciseRepository.findById(id);
             ExerciseDTO dto = ExerciseDTO.fromExercise(exercise);
-            return ApiResponse.ok(dto, 200);
+            return ApiResponse.ok(200, dto);
         } catch (Exception e){
-            return ApiResponse.fail("운동 조회중 오류발생",500);
+            return ApiResponse.fail(500, "운동 조회중 오류발생");
         }
 
     }
@@ -80,9 +80,9 @@ public class ExerciseService {
     public ApiResponse<List<MybatisExercise>> findFeedbackExercises() {
         try{
             List<MybatisExercise> list = exerciseMapper.findFeedbackExercises();
-            return ApiResponse.ok(list, 200);
+            return ApiResponse.ok(200, list);
         } catch (Exception e){
-            return ApiResponse.fail("운동 조회중 오류", 500);
+            return ApiResponse.fail(500, "운동 조회중 오류");
         }
     }
     

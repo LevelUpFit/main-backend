@@ -175,7 +175,7 @@ public class KakaoService {
                     response.setAccessToken(accessToken);
                     response.setRefreshToken(refreshToken);
 
-                    return ApiResponse.ok(response,201);
+                    return ApiResponse.ok(201, response);
                 }
             } else {
 
@@ -187,13 +187,13 @@ public class KakaoService {
                 response.setLevel(user.getLevel());
                 response.setAccessToken(user.getAccess_token());
                 response.setRefreshToken(user.getRefresh_token());
-                return ApiResponse.ok(response,200);
+                return ApiResponse.ok(response);
             }
 
         } catch (Exception e) {
-            return ApiResponse.fail("소셜 로그인 오류",500);
+            return ApiResponse.fail(500, "소셜 로그인 오류");
         }
-        return ApiResponse.fail("알 수 없는 오류",500);
+        return ApiResponse.fail(500, "알 수 없는 오류");
     }
 
     //많이 생각해봐야할듯 ㅇㅇ

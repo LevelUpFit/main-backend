@@ -28,15 +28,15 @@ public class RoutineExerciseService {
     final RoutineRepository routineRepository;
     final ExerciseRepository exerciseRepository;
 
-    //루틴 종복 생성
+    //루틴 종목 생성
     public ApiResponse<List<RoutineExerciseDTO>> createRoutineExercise(List<RoutineExerciseRequest> routineExerciseDTOList) {
         try{
             int id = routineExerciseDTOList.get(0).getRoutineId();
             for(RoutineExerciseRequest routineExerciseDTO : routineExerciseDTOList) {
                 if(routineExerciseDTO == null) {
-                    return ApiResponse.fail("운동 정보가 없습니다.",400);
+                    return ApiResponse.fail(400, "운동 정보가 없습니다.");
                 } else if(routineExerciseDTO.getSets() != routineExerciseDTO.getReps().size()){
-                    return ApiResponse.fail("sets 수보다 더 많은 reps를 지정할 수 없습니다.",400);
+                    return ApiResponse.fail(400, "sets 수보다 더 많은 reps를 지정할 수 없습니다.");
                 }
 
                 RoutineExercise routineExercise = RoutineExercise.builder()
@@ -57,9 +57,9 @@ public class RoutineExerciseService {
                     .toList();
 
 
-            return ApiResponse.ok(routineExerciseList,200);
+            return ApiResponse.ok(200, routineExerciseList);
         } catch (Exception e){
-            return ApiResponse.fail("루틴 운동 저장중 오류가 발생했습니다.",400);
+            return ApiResponse.fail(400, "루틴 운동 저장중 오류가 발생했습니다.");
         }
     }
 
@@ -71,9 +71,9 @@ public class RoutineExerciseService {
                     .map(RoutineExerciseDTO::fromRoutineExercise)
                     .toList();
 
-            return ApiResponse.ok(list,200);
+            return ApiResponse.ok(200, list);
         } catch (Exception e){
-            return ApiResponse.fail("루틴 종목 조회중 오류 발생", 500);
+            return ApiResponse.fail(500, "루틴 종목 조회중 오류 발생");
         }
 
     }
@@ -86,7 +86,7 @@ public class RoutineExerciseService {
             List<RoutineExerciseRequest> newList = request.getNewRoutineExerciseList();
 
             if (existingList.isEmpty() && newList.isEmpty()) {
-                return ApiResponse.fail("변경 요청이 비어 있음", 400);
+                return ApiResponse.fail(400, "변경 요청이 비어 있음");
             }
 
             int routineId = !existingList.isEmpty()
@@ -97,7 +97,7 @@ public class RoutineExerciseService {
             Map<Integer, RoutineExercise> dbMap = dbList.stream()
                     .collect(Collectors.toMap(RoutineExercise::getId, r -> r));
 
-            // ✅ 수정 및 유지 처리
+            // 수정 및 유지 처리
             Set<Integer> incomingIds = new HashSet<>();
             for (RoutineExerciseDTO dto : existingList) {
                 Integer id = dto.getId();
@@ -110,14 +110,14 @@ public class RoutineExerciseService {
                 }
             }
 
-            // ✅ 삭제 처리
+            // 삭제 처리
             for (RoutineExercise dbItem : dbList) {
                 if (!incomingIds.contains(dbItem.getId())) {
                     routineExerciseRepository.delete(dbItem);
                 }
             }
 
-            // ✅ 추가 처리
+            // 추가 처리
             Routine routine = routineRepository.findById(routineId)
                     .orElseThrow(() -> new EntityNotFoundException("루틴이 존재하지 않습니다."));
 
@@ -127,10 +127,10 @@ public class RoutineExerciseService {
                 newEntity.setRoutine(routine);
                 routineExerciseRepository.save(newEntity);
             }
-            return ApiResponse.ok(null, 200);
+            return ApiResponse.ok(200, null);
 
         } catch (Exception e){
-            return ApiResponse.fail(e.getMessage(), 500);
+            return ApiResponse.fail(500, e.getMessage());
         }
     }
 

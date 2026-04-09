@@ -30,9 +30,9 @@ public class ExerciseFeedbackService {
     private final FastApiWebClientService fastApiWebClientService;
     private final FeedbacksUpdateService feedbacksUpdateService;
 
-    //피드백 초안 저장
+    // 피드백 초안 저장
     public ApiResponse<ExerciseFeedbacksDTO> createFeedback(ExerciseFeedbackRequest request) {
-        if(!userRepository.existsByUserid(request.getUserId())) return ApiResponse.fail("유저 정보를 찾을 수 없습니다.",404);
+        if(!userRepository.existsByUserid(request.getUserId())) return ApiResponse.fail(404, "유저 정보를 찾을 수 없습니다.");
         User user = userRepository.findByUserid(request.getUserId());
         try{
             if(exerciseRepository.existsById(request.getExerciseId())) {
@@ -51,31 +51,28 @@ public class ExerciseFeedbackService {
 
                 ExerciseFeedbacksDTO dto = ExerciseFeedbacksDTO.fromEntity(exerciseFeedbacks);
 
-                return ApiResponse.ok(dto,201);
+                return ApiResponse.ok(201, dto);
             } else {
-                return ApiResponse.fail("피드백을 지원하지 않는 운동입니다.",400);
+                return ApiResponse.fail(400, "피드백을 지원하지 않는 운동입니다.");
             }
         } catch (Exception e){
-            return ApiResponse.fail("피드백 영상 요청중 오류 발생", 500);
+            return ApiResponse.fail(500, "피드백 영상 요청 중 오류 발생");
         }
 
     }
 
-    //FastApi로 동영상 보내기
+    // FastApi로 동영상 전송
     public void sendVideo(ExerciseFeedbackRequest request) throws IOException {
         fastApiWebClientService.sendToFastApi(request)
                 .subscribe(result -> {
-                    // 성공 처리
                     feedbacksUpdateService.updateFeedback(result);
                     System.out.println("결과: " + result);
                 }, error -> {
-                    // 에러 처리
-                    System.out.println("error");
                     System.out.println("error: " + error.getMessage());
                 });
     }
 
-    //피드백 기록 조회(회원)
+    // 피드백 기록 조회 (회원별)
     public ApiResponse<List<ExerciseFeedbacksDTO>> getFeedbackByUserId(int userId) {
         try{
             if(userRepository.existsByUserid(userId)) {
@@ -85,22 +82,22 @@ public class ExerciseFeedbackService {
                         .map(ExerciseFeedbacksDTO::fromEntity)
                         .toList();
 
-                return ApiResponse.ok(dto,200);
+                return ApiResponse.ok(dto);
             } else {
-                return ApiResponse.fail("유저 정보를 조회할 수 없습니다.",404);
+                return ApiResponse.fail(404, "유저 정보를 조회할 수 없습니다.");
             }
         } catch (Exception e) {
-            return ApiResponse.fail("피드백 조회중 오류", 500);
+            return ApiResponse.fail(500, "피드백 조회 중 오류 발생");
         }
     }
 
-    //피드백 id를 통한 단일 조회
+    // 피드백 단일 조회
     public ApiResponse<ExerciseFeedbacksDTO> getFeedbackById(int feedbackId) {
         try{
             ExerciseFeedbacksDTO result = ExerciseFeedbacksDTO.fromEntity(exerciseFeedbackRepository.findByFeedbackId(feedbackId));
-            return ApiResponse.ok(result,200);
+            return ApiResponse.ok(result);
         } catch (Exception e) {
-            return ApiResponse.fail("피드백 조회 실패",500);
+            return ApiResponse.fail(500, "피드백 조회 실패");
         }
     }
 

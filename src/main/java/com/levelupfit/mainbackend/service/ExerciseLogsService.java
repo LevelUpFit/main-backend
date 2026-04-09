@@ -36,10 +36,10 @@ public class ExerciseLogsService {
                 exerciseLogsRepository.save(exerciseLogs);
             }
 
-            return ApiResponse.ok(null,201);
+            return ApiResponse.ok(201, null);
 
         } catch(Exception e){
-            return ApiResponse.fail("기록 저장중 오류 발생", 500);
+            return ApiResponse.fail(500, "기록 저장중 오류 발생");
         }
     }
     
@@ -50,10 +50,10 @@ public class ExerciseLogsService {
                     .stream()
                     .map(ExerciseLogsDTO::fromExerciseLogs)
                     .toList();
-            return ApiResponse.ok(list,200);
+            return ApiResponse.ok(200, list);
             
         } catch (Exception e){
-            return ApiResponse.fail("기록 조회중 오류", 500);
+            return ApiResponse.fail(500, "기록 조회중 오류");
         }
     }
     
@@ -61,9 +61,9 @@ public class ExerciseLogsService {
     public ApiResponse<Void> deleteExerciseLog(ExerciseLogsDeleteRequest request){
         try{
             exerciseLogsRepository.deleteById(request.getExerciseLogId());
-            return ApiResponse.ok(null,200);
+            return ApiResponse.ok(200, null);
         } catch(Exception e){
-            return ApiResponse.fail("삭제중 오류 발생", 500);
+            return ApiResponse.fail(500, "삭제중 오류 발생");
         }
     }
 }

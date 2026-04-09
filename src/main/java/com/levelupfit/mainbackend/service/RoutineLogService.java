@@ -47,12 +47,12 @@ public class RoutineLogService {
 
             RoutineLogsDTO dto = RoutineLogsDTO.formRoutineLogs(logs);
 
-            return ApiResponse.ok(dto, 201);
+            return ApiResponse.ok(201, dto);
 
         } catch (JsonProcessingException e) {
-            return ApiResponse.fail("운동 상세 정보 변환 중 오류 발생", 400);
+            return ApiResponse.fail(400, "운동 상세 정보 변환 중 오류 발생");
         } catch (Exception e){
-            return ApiResponse.fail("루틴 기록중 오류 발생", 500);
+            return ApiResponse.fail(500, "루틴 기록중 오류 발생");
         }
     }
 
@@ -64,9 +64,9 @@ public class RoutineLogService {
                     .stream()
                     .map(RoutineLogsDTO::formRoutineLogs)
                     .toList();
-            return ApiResponse.ok(list, 200);
+            return ApiResponse.ok(200, list);
         } catch (Exception  e){
-            return ApiResponse.fail("기록 불러오기중 오류 발생", 500);
+            return ApiResponse.fail(500, "기록 불러오기중 오류 발생");
         }
     }
 
@@ -74,9 +74,9 @@ public class RoutineLogService {
     public ApiResponse<Void> deleteRoutineLog(RoutineLogsDeleteRequest routineLogsRequest) {
         try{
             routineLogRepository.deleteById(routineLogsRequest.getLogId());
-            return ApiResponse.ok(null, 200);
+            return ApiResponse.ok(200, null);
         } catch (Exception e){
-            return ApiResponse.fail("삭제중 오류", 500);
+            return ApiResponse.fail(500, "삭제중 오류");
         }
     }
 }

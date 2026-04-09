@@ -24,9 +24,9 @@ public class UserLogsServise {
     public ApiResponse<List<LocalDate>> getLogDates(LogDateSearchRequest request) {
         try{
             List<LocalDate> list = unifiedLogMapper.findLogDatesByUserAndMonth(request.getUserId(), request.getYear(), request.getMonth());
-            return ApiResponse.ok(list,200);
+            return ApiResponse.ok(200, list);
         }catch (Exception e){
-            return ApiResponse.fail("날짜 조회중 오류 발생", 500);
+            return ApiResponse.fail(500, "날짜 조회중 오류 발생");
         }
     }
 
@@ -36,9 +36,9 @@ public class UserLogsServise {
 
             List<UnifiedLogDto> list = unifiedLogMapper.findAllLogsByUserIdAndDate(request.getUserId(), request.getPerformedDate());
 
-            return ApiResponse.ok(list,200);
+            return ApiResponse.ok(200, list);
         } catch (Exception e){
-            return ApiResponse.fail("로그 조회중 오류 발생", 500);
+            return ApiResponse.fail(500, "로그 조회중 오류 발생");
         }
 
     }
@@ -48,18 +48,18 @@ public class UserLogsServise {
         try {
             // logType 유효성 검사
             if (!"EXERCISE".equals(logType) && !"ROUTINE".equals(logType)) {
-                return ApiResponse.fail("잘못된 기록 타입입니다. EXERCISE 또는 ROUTINE만 허용됩니다.", 400);
+                return ApiResponse.fail(400, "잘못된 기록 타입입니다. EXERCISE 또는 ROUTINE만 허용됩니다.");
             }
 
             UnifiedLogDto log = unifiedLogMapper.findLogById(logId, logType);
             
             if (log == null) {
-                return ApiResponse.fail("해당 기록을 찾을 수 없습니다.", 404);
+                return ApiResponse.fail(404, "해당 기록을 찾을 수 없습니다.");
             }
             
-            return ApiResponse.ok(log, 200);
+            return ApiResponse.ok(200, log);
         } catch (Exception e) {
-            return ApiResponse.fail("기록 조회 중 오류 발생", 500);
+            return ApiResponse.fail(500, "기록 조회 중 오류 발생");
         }
     }
 }

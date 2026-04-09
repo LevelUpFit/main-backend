@@ -45,10 +45,10 @@ public class RoutineService {
 
             RoutineDTO dto = RoutineDTO.fromRoutine(createdRoutine);
 
-            return ApiResponse.ok(dto,201);
+            return ApiResponse.ok(201, dto);
 
         } catch (Exception e){
-            return ApiResponse.fail("루틴 생성중 오류 발생",500);
+            return ApiResponse.fail(500, "루틴 생성중 오류 발생");
         }
     }
   
@@ -60,9 +60,9 @@ public class RoutineService {
                     .map(RoutineDTO::fromRoutine)
                     .toList();
 
-            return ApiResponse.ok(list,200);
+            return ApiResponse.ok(200, list);
         } catch (Exception e){
-            return ApiResponse.fail("루틴 조회중 오류가 발생하였습니다",500);
+            return ApiResponse.fail(500, "루틴 조회중 오류가 발생하였습니다");
         }
     }
 
@@ -73,9 +73,9 @@ public class RoutineService {
                     .stream()
                     .map(RoutineDTO::fromRoutine)
                     .toList();
-            return ApiResponse.ok(list,200);
+            return ApiResponse.ok(200, list);
         } catch (Exception e){
-            return ApiResponse.fail("루틴 조회중 오류 발생",500);
+            return ApiResponse.fail(500, "루틴 조회중 오류 발생");
         }
     }
 
@@ -83,9 +83,9 @@ public class RoutineService {
     public ApiResponse<Void> deleteRoutine(RoutineDeleteRequest routineDeleteRequest) {
         try{
             routineRepository.deleteById(routineDeleteRequest.getRoutineId());
-            return ApiResponse.ok(null,201);
+            return ApiResponse.ok(201, null);
         } catch (Exception e){
-            return ApiResponse.fail("삭제중 오류 발생", 500);
+            return ApiResponse.fail(500, "삭제중 오류 발생");
         }
     }
 
@@ -98,12 +98,10 @@ public class RoutineService {
             routine.setDescription(routinePatchRequest.getDescription());
             routine.setDifficulty(routinePatchRequest.getDifficulty());
 
-
-
-            return ApiResponse.ok(null,200);
+            return ApiResponse.ok(200, null);
 
         } catch (Exception e){
-            return ApiResponse.fail("루틴 수정중 오류 발생", 500);
+            return ApiResponse.fail(500, "루틴 수정중 오류 발생");
         }
     }
 }

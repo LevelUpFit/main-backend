@@ -3,9 +3,8 @@ package com.levelupfit.mainbackend.controller;
 import com.levelupfit.mainbackend.dto.ApiResponse;
 import com.levelupfit.mainbackend.dto.UnifiedLog.request.LogDateSearchRequest;
 import com.levelupfit.mainbackend.dto.UnifiedLog.request.LogSearchRequest;
-import com.levelupfit.mainbackend.dto.UnifiedLog.response.UnifiedLogDate;
 import com.levelupfit.mainbackend.dto.UnifiedLog.response.UnifiedLogDto;
-import com.levelupfit.mainbackend.service.UserLogsServise;
+import com.levelupfit.mainbackend.service.UserLogsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,41 +17,35 @@ import java.util.List;
 @RequestMapping("/user-logs")
 public class UserLogController {
 
-    private final UserLogsServise userLogsServise;
-    
-    //@ModelAttribute는 GET/POST용청을 둘다 수용가능하며 param이든 body든 받을 수 있음
+    private final UserLogsService userLogsService;
 
+    /**
+     * 날짜 조회 (년 월 입력받음)
+     */
     @GetMapping("/date")
-    private ResponseEntity<ApiResponse<List<LocalDate>>> getUnifiedLogDate(@ModelAttribute LogDateSearchRequest request) {
-        ApiResponse<List<LocalDate>> response = userLogsServise.getLogDates(request);
-        if(response.isSuccess()){
-            return ResponseEntity.ok(response);
-        } else {
-            return ResponseEntity.status(response.getCode()).body(response);
-        }
+    public ResponseEntity<ApiResponse<List<LocalDate>>> getUnifiedLogDate(@ModelAttribute LogDateSearchRequest request) {
+        List<LocalDate> result = userLogsService.getLogDates(request);
+        return ResponseEntity.ok(ApiResponse.ok(result));
     }
 
+    /**
+     * 날짜를 통해 통합 로그 조회
+     */
     @GetMapping("/date-detail")
-    private ResponseEntity<ApiResponse<List<UnifiedLogDto>>> getUserLogsByUserIdAndDate(@ModelAttribute LogSearchRequest request) {
-        ApiResponse<List<UnifiedLogDto>> response = userLogsServise.getAllUserlogs(request);
-        if(response.isSuccess()){
-            return ResponseEntity.ok(response);
-        }else{
-            return ResponseEntity.status(response.getCode()).body(response);
-        }
+    public ResponseEntity<ApiResponse<List<UnifiedLogDto>>> getUserLogsByUserIdAndDate(@ModelAttribute LogSearchRequest request) {
+        List<UnifiedLogDto> result = userLogsService.getAllUserlogs(request);
+        return ResponseEntity.ok(ApiResponse.ok(result));
     }
 
-    // 운동 기록 단일 조회 (logId와 logType으로 조회)
+    /**
+     * 운동 기록 단일 조회 (logId와 logType으로 조회)
+     */
     @GetMapping("/detail/{logId}")
-    private ResponseEntity<ApiResponse<UnifiedLogDto>> getLogById(
+    public ResponseEntity<ApiResponse<UnifiedLogDto>> getLogById(
             @PathVariable int logId,
             @RequestParam String logType) {
-        ApiResponse<UnifiedLogDto> response = userLogsServise.getLogById(logId, logType);
-        if(response.isSuccess()){
-            return ResponseEntity.ok(response);
-        } else {
-            return ResponseEntity.status(response.getCode()).body(response);
-        }
+        UnifiedLogDto result = userLogsService.getLogById(logId, logType);
+        return ResponseEntity.ok(ApiResponse.ok(result));
     }
 
 }

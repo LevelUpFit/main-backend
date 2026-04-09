@@ -24,7 +24,6 @@ mybatis:
   mapper-locations: classpath:mapper/**/*.xml
   type-aliases-package: com.levelupfit.mainbackend.dto
 
-
 logging:
   level:
     org.hibernate.SQL: DEBUG
@@ -42,16 +41,21 @@ management:
       show-details: always
 
 server:
-  port: 8081
+  port: ${PORT:8081}
+
+# 보안 설정 (환경 변수 관리)
+jwt:
+  secret: ${JWT_SECRET_KEY}
+
+kakao:
+  rest-api-key: ${KAKAO_RESTAPI_KEY}
+  redirect-uri: ${KAKAO_REDIRECT_URI}
 
 # 프로젝트 상수 설정
 app:
   minio:
     bucket:
-      profile: "levelupfit-profile"
+      profile: ${MINIO_BUCKET_PROFILE:levelupfit-profile}
   default:
     profile-image: "default.jpg"
     thumbnail-path: "levelupfit-profile/exercise/"
-
-
-

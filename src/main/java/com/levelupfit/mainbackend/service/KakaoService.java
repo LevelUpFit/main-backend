@@ -36,10 +36,10 @@ public class KakaoService {
     private final SocialUserRepository socialUserRepository;
     private final JwtUtils jwtUtils;
     private final UserRepository userRepository;
-    @Value("${KAKAO_RESTAPI_KEY}")
+    @Value("${kakao.rest-api-key}")
     private String client_id;
 
-    @Value("${KAKAO_REDIRECT_URI}") //반환 URI
+    @Value("${kakao.redirect-uri}") //반환 URI
     private String redirect_uri;
 
     //로그인 페이지 요청

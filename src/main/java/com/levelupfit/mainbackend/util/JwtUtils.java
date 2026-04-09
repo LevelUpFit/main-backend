@@ -12,7 +12,7 @@ import java.util.Date;
 @Component
 public class JwtUtils {
 
-    @Value("${JWT_SECRET_KEY}")
+    @Value("${jwt.secret}")
     private String secretKeyString; // 환경변수나 프로퍼티에서 가져옴
 
     private SecretKey secretKey; // SecretKey 객체

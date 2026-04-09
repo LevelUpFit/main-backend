@@ -14,14 +14,21 @@ public class FormUser {
 
     @Id
     @Column(name = "user_id")
-    private int userId;  // user_id는 INT니까 Integer 사용
+    private int userId;
 
     @Column(name = "passwd", nullable = false)
     private String passwd;
 
     @OneToOne
-    @MapsId // user_id를 외래키 + PK로 동시에 사용하는 경우
+    @MapsId
     @JoinColumn(name = "user_id")
-    private User user;  // users 테이블과 1:1 관계
+    private User user;
+
+    public static FormUser of(User user, String encodedPassword) {
+        return FormUser.builder()
+                .user(user)
+                .passwd(encodedPassword)
+                .build();
+    }
 }
 

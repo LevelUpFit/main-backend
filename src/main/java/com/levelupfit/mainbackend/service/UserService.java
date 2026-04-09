@@ -61,24 +61,10 @@ public class UserService {
         String accessToken = jwtUtils.createAccessToken(registerRequest.getEmail());
         String refreshToken = jwtUtils.createRefreshToken(registerRequest.getEmail());
 
-        User user = User.builder()
-                .email(registerRequest.getEmail())
-                .nickname("헬린이1")
-                .dob(LocalDate.parse(registerRequest.getDob()))
-                .level(registerRequest.getLevel())
-                .gender(registerRequest.getGender())
-                .profile("default.jpg")
-                .access_token(accessToken)
-                .refresh_token(refreshToken)
-                .build();
-
+        User user = User.of(registerRequest, accessToken, refreshToken);
         User savedUser = userRepository.save(user);
 
-        FormUser formUser = FormUser.builder()
-                .user(savedUser)
-                .passwd(encodedPassword)
-                .build();
-
+        FormUser formUser = FormUser.of(savedUser, encodedPassword);
         formUserRepository.save(formUser);
     }
 
@@ -97,15 +83,7 @@ public class UserService {
             throw new BusinessException(ErrorCode.LOGIN_FAILED);
         }
 
-        LoginResponse response = new LoginResponse();
-        response.setUserId(user.getUserid());
-        response.setNickname(user.getNickname());
-        response.setProfile(DEFAULT_PROFILE_URL + user.getProfile());
-        response.setLevel(user.getLevel());
-        response.setAccessToken(user.getAccess_token());
-        response.setRefreshToken(user.getRefresh_token());
-
-        return response;
+        return user.toLoginResponse(DEFAULT_PROFILE_URL);
     }
 
     // 3대 운동 저장
@@ -153,15 +131,8 @@ public class UserService {
         if(user == null){
             return ApiResponse.fail(404, "유저를 찾을 수 없음");
         }
-        LoginResponse userDTO = new LoginResponse();
-        userDTO.setUserId(user.getUserid());
-        userDTO.setNickname(user.getNickname());
-        userDTO.setProfile(DEFAULT_PROFILE_URL + user.getProfile());
-        userDTO.setLevel(user.getLevel());
-        userDTO.setAccessToken(user.getAccess_token());
-        userDTO.setRefreshToken(user.getRefresh_token());
 
-        return ApiResponse.ok(userDTO);
+        return ApiResponse.ok(user.toLoginResponse(DEFAULT_PROFILE_URL));
     }
 
     // 유저 프로필 수정

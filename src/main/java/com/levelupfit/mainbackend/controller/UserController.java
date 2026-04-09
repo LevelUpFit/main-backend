@@ -6,13 +6,11 @@ import com.levelupfit.mainbackend.dto.user.request.ChangePwdRequestDTO;
 import com.levelupfit.mainbackend.dto.user.request.RegisterRequest;
 import com.levelupfit.mainbackend.dto.user.response.LoginResponse;
 import com.levelupfit.mainbackend.service.KakaoService;
-import com.levelupfit.mainbackend.service.MinioService;
 import com.levelupfit.mainbackend.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,132 +21,120 @@ public class UserController {
 
     private final UserService userService;
     private final KakaoService kakaoService;
-    private final MinioService minioService;
 
-    // 이메일 중복확인
+    /**
+     * 이메일 중복확인
+     */
     @PostMapping("/checkEmail")
     public ResponseEntity<ApiResponse<Void>> checkEmail(@Valid @RequestBody CheckEmailDTO email) {
         userService.checkEmail(email);
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok());
+        return ResponseEntity.ok(ApiResponse.ok());
     }
 
-    // 회원가입
+    /**
+     * 회원가입
+     */
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<String>> saveFormUser(@RequestBody RegisterRequest registerRequest) {
+    public ResponseEntity<ApiResponse<Void>> saveFormUser(@RequestBody RegisterRequest registerRequest) {
         userService.saveFormUser(registerRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok(201, "회원가입 성공"));
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok(201));
     }
 
-    // 3대 운동 등록
+    /**
+     * 3대 운동 등록
+     */
     @PostMapping("/strength")
     public ResponseEntity<ApiResponse<Void>> saveStrength(@RequestBody UserStrengthDTO dto) {
-        ApiResponse<Void> response = userService.saveUserStrength(dto);
-        if(response.isSuccess()){
-            return ResponseEntity.status(HttpStatus.OK).body(response);
-        } else{
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-        }
+        userService.saveUserStrength(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok(201));
     }
 
-    // 로그인
+    /**
+     * 로그인
+     */
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginRequestDTO dto){
         LoginResponse response = userService.login(dto);
         return ResponseEntity.ok(ApiResponse.ok(response));
     }
 
-    // 카카오 로그인 URL 반환
+    /**
+     * 카카오 로그인 URL 반환
+     */
     @GetMapping("/kakao/login")
     public ResponseEntity<String> loginPage(){
-        String kakaoLoginUrl = kakaoService.loginPage();
-        return ResponseEntity.ok(kakaoLoginUrl);
+        return ResponseEntity.ok(kakaoService.loginPage());
     }
 
-    // 카카오 콜백 처리
+    /**
+     * 카카오 콜백 처리
+     */
     @GetMapping("/callback")
     public ResponseEntity<ApiResponse<LoginResponse>> checkUser(@RequestParam("code") String code) {
-        ApiResponse<LoginResponse> response = kakaoService.handleKakaoLogin(code);
-        if(response.isSuccess()){
-            return ResponseEntity.status(HttpStatus.OK).body(response);
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-        }
+        LoginResponse response = kakaoService.handleKakaoLogin(code).getData(); // KakaoService도 리팩토링 필요할 수 있음
+        return ResponseEntity.ok(ApiResponse.ok(response));
     }
 
-    // 유저 정보 조회
+    /**
+     * 유저 정보 조회
+     */
     @GetMapping("/getinfo/{userId}")
     public ResponseEntity<ApiResponse<LoginResponse>> getInfo(@PathVariable int userId){
-        ApiResponse<LoginResponse> response = userService.getInfo(userId);
-        if(response.isSuccess()){
-            return ResponseEntity.status(HttpStatus.OK).body(response);
-        }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        LoginResponse response = userService.getInfo(userId);
+        return ResponseEntity.ok(ApiResponse.ok(response));
     }
 
-    // 프로필 사진 변경
+    /**
+     * 프로필 사진 변경
+     */
     @PatchMapping("/profile")
     public ResponseEntity<ApiResponse<Void>> updateFormUser(@RequestParam MultipartFile profile, @RequestParam int userid) {
-        ApiResponse<Void> response = userService.updateProfile(userid, profile);
-        if(response.isSuccess()) {
-            return ResponseEntity.status(HttpStatus.OK).body(response);
-        } else{
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-        }
+        userService.updateProfile(userid, profile);
+        return ResponseEntity.ok(ApiResponse.ok());
     }
 
-    // 운동 수준 변경
+    /**
+     * 운동 수준 변경
+     */
     @PatchMapping("/level")
     public ResponseEntity<ApiResponse<Void>> updateLevel(@RequestBody UpdateLevelDTO dto) {
-        ApiResponse<Void> response = userService.updateLevel(dto);
-        if(response.isSuccess()) {
-            return ResponseEntity.status(HttpStatus.OK).body(response);
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-        }
+        userService.updateLevel(dto);
+        return ResponseEntity.ok(ApiResponse.ok());
     }
 
-    // 닉네임 변경
+    /**
+     * 닉네임 변경
+     */
     @PatchMapping("/nickname")
     public ResponseEntity<ApiResponse<Void>> updateNickname(@RequestBody UpdateNicknameDTO dto) {
-        ApiResponse<Void> response = userService.updateNickname(dto);
-        if(response.isSuccess()) {
-            return ResponseEntity.ok(response);
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-        }
+        userService.updateNickname(dto);
+        return ResponseEntity.ok(ApiResponse.ok());
     }
 
-    // 3대 운동 변경
+    /**
+     * 3대 운동 변경
+     */
     @PatchMapping("/strength")
     public ResponseEntity<ApiResponse<Void>> updateStrength(@RequestBody UserStrengthDTO dto){
-        ApiResponse<Void> reponse = userService.updateStrength(dto);
-        if(reponse.isSuccess()){
-            return ResponseEntity.ok(reponse);
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(reponse);
-        }
+        userService.updateStrength(dto);
+        return ResponseEntity.ok(ApiResponse.ok());
     }
 
-    // 계정 탈퇴
+    /**
+     * 계정 탈퇴
+     */
     @DeleteMapping("/delete")
     public ResponseEntity<ApiResponse<Void>> deleteUser(@RequestBody FormUserDTO dto) {
-        ApiResponse<Void> response = userService.deleteUser(dto);
-        if(response.isSuccess()){
-            return ResponseEntity.ok(response);
-        } else {
-            return ResponseEntity.badRequest().body(response);
-        }
+        userService.deleteUser(dto);
+        return ResponseEntity.ok(ApiResponse.ok());
     }
 
-    // 비밀번호 변경
+    /**
+     * 비밀번호 변경
+     */
     @PatchMapping("/password")
     public ResponseEntity<ApiResponse<Void>> updatePassword(@RequestBody ChangePwdRequestDTO dto) {
-        ApiResponse<Void> response = userService.updatePassword(dto);
-        if(response.isSuccess()){
-            return ResponseEntity.status(HttpStatus.OK).body(response);
-        } else{
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-        }
+        userService.updatePassword(dto);
+        return ResponseEntity.ok(ApiResponse.ok());
     }
-
 }

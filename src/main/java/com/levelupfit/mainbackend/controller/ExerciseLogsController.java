@@ -7,13 +7,10 @@ import com.levelupfit.mainbackend.dto.exerciseLog.request.ExerciseLogsGetRequest
 import com.levelupfit.mainbackend.dto.exerciseLog.request.ExerciseLogsRequest;
 import com.levelupfit.mainbackend.service.ExerciseLogsService;
 import lombok.RequiredArgsConstructor;
-import okhttp3.Response;
-import org.apache.ibatis.annotations.Delete;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -22,33 +19,30 @@ import java.util.List;
 public class ExerciseLogsController {
     private final ExerciseLogsService exerciseLogsService;
 
+    /**
+     * 운동 기록 저장
+     */
     @PostMapping("/save")
-    public ResponseEntity<ApiResponse<ExerciseLogsDTO>> saveExerciseLogs(@RequestBody ExerciseLogsRequest request) {
-        ApiResponse<ExerciseLogsDTO> response = exerciseLogsService.saveExerciseLog(request);
-        if(response.isSuccess()){
-            return ResponseEntity.ok(response);
-        } else {
-            return ResponseEntity.badRequest().body(response);
-        }
+    public ResponseEntity<ApiResponse<Void>> saveExerciseLogs(@RequestBody ExerciseLogsRequest request) {
+        exerciseLogsService.saveExerciseLog(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok(201));
     }
 
+    /**
+     * 운동 기록 조회
+     */
     @GetMapping
     public ResponseEntity<ApiResponse<List<ExerciseLogsDTO>>> getAllExerciseLogs(@RequestBody ExerciseLogsGetRequest request) {
-        ApiResponse<List<ExerciseLogsDTO>> response = exerciseLogsService.getExerciseLogs(request);
-        if(response.isSuccess()){
-            return ResponseEntity.ok(response);
-        } else {
-            return ResponseEntity.badRequest().body(response);
-        }
+        List<ExerciseLogsDTO> result = exerciseLogsService.getExerciseLogs(request);
+        return ResponseEntity.ok(ApiResponse.ok(result));
     }
 
+    /**
+     * 운동 기록 삭제
+     */
     @DeleteMapping
     public ResponseEntity<ApiResponse<Void>> deleteExerciseLogs(@RequestBody ExerciseLogsDeleteRequest request) {
-        ApiResponse<Void> response = exerciseLogsService.deleteExerciseLog(request);
-        if(response.isSuccess()){
-            return ResponseEntity.ok(response);
-        } else {
-            return ResponseEntity.badRequest().body(response);
-        }
+        exerciseLogsService.deleteExerciseLog(request);
+        return ResponseEntity.ok(ApiResponse.ok());
     }
 }

@@ -6,8 +6,8 @@ import com.levelupfit.mainbackend.dto.routineLog.request.RoutineLogsDeleteReques
 import com.levelupfit.mainbackend.dto.routineLog.request.RoutineLogsGetRequest;
 import com.levelupfit.mainbackend.dto.routineLog.request.RoutineLogsRequest;
 import com.levelupfit.mainbackend.service.RoutineLogService;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,38 +18,32 @@ import java.util.List;
 @RequestMapping("/routines-log")
 public class RoutineLogsController {
 
-    final RoutineLogService routineLogService;
+    private final RoutineLogService routineLogService;
 
-    //기록 저장
-    @PostMapping("save")
+    /**
+     * 루틴 기록 저장
+     */
+    @PostMapping("/save")
     public ResponseEntity<ApiResponse<RoutineLogsDTO>> saveRoutineLog(@RequestBody RoutineLogsRequest request) {
-        ApiResponse<RoutineLogsDTO> response = routineLogService.saveRoutineLog(request);
-        if(response.isSuccess()){
-            return ResponseEntity.ok(response);
-        } else {
-            return ResponseEntity.badRequest().body(response);
-        }
+        RoutineLogsDTO result = routineLogService.saveRoutineLog(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok(201, result));
     }
 
-    //기록 조회(userId)
+    /**
+     * 루틴 기록 조회 (userId 기반)
+     */
     @GetMapping
     public ResponseEntity<ApiResponse<List<RoutineLogsDTO>>> getRoutineLogs(@RequestBody RoutineLogsGetRequest request) {
-        ApiResponse<List<RoutineLogsDTO>> response = routineLogService.getRoutineLogs(request);
-        if(response.isSuccess()){
-            return ResponseEntity.ok(response);
-        } else {
-            return ResponseEntity.badRequest().body(response);
-        }
+        List<RoutineLogsDTO> result = routineLogService.getRoutineLogs(request);
+        return ResponseEntity.ok(ApiResponse.ok(result));
     }
 
-    //기록 삭제
+    /**
+     * 기록 삭제
+     */
     @DeleteMapping
     public ResponseEntity<ApiResponse<Void>> deleteRoutineLogs(@RequestBody RoutineLogsDeleteRequest request) {
-        ApiResponse<Void> response = routineLogService.deleteRoutineLog(request);
-        if(response.isSuccess()){
-            return ResponseEntity.ok(response);
-        } else{
-            return ResponseEntity.badRequest().body(response);
-        }
+        routineLogService.deleteRoutineLog(request);
+        return ResponseEntity.ok(ApiResponse.ok());
     }
 }

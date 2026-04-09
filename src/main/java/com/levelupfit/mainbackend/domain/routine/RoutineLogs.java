@@ -9,8 +9,9 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @Builder
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@Table(name = "routine_logs")
 public class RoutineLogs {
 
     @Id
@@ -28,25 +29,38 @@ public class RoutineLogs {
     private LocalDate performedDate;
 
     @Column(name="total_volume")
-    private Integer totalVolume;  // 총 볼륨 (kg)
+    private Integer totalVolume;
 
     @Column(name="duration_seconds")
-    private Integer durationSeconds;  // 운동 시간 (초)
+    private Integer durationSeconds;
 
     @Column(name="total_sets")
-    private Integer totalSets;  // 완료한 총 세트 수
+    private Integer totalSets;
 
     @Column(name="target_muscle")
-    private String targetMuscle;  // 타겟 근육
+    private String targetMuscle;
 
     @Column(name="exercise_details", columnDefinition = "TEXT")
-    private String exerciseDetails;  // 운동별 상세 정보 (JSON 문자열로 저장)
+    private String exerciseDetails;
 
     @Column(name="created_at")
     private LocalDate createdAt;
 
-    @PrePersist //save() 할 때 불러와짐
+    @PrePersist
     public void setCreatedAt() {
         this.createdAt = LocalDate.now();
+    }
+
+    public static RoutineLogs of(int userId, int routineId, LocalDate performedDate, Integer totalVolume, Integer durationSeconds, Integer totalSets, String targetMuscle, String exerciseDetails) {
+        return RoutineLogs.builder()
+                .userId(userId)
+                .routineId(routineId)
+                .performedDate(performedDate)
+                .totalVolume(totalVolume)
+                .durationSeconds(durationSeconds)
+                .totalSets(totalSets)
+                .targetMuscle(targetMuscle)
+                .exerciseDetails(exerciseDetails)
+                .build();
     }
 }

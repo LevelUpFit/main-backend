@@ -1,69 +1,58 @@
 package com.levelupfit.mainbackend.service;
 
 import com.levelupfit.mainbackend.domain.exercise.ExerciseLogs;
-import com.levelupfit.mainbackend.dto.ApiResponse;
 import com.levelupfit.mainbackend.dto.exerciseLog.ExerciseLogsDTO;
 import com.levelupfit.mainbackend.dto.exerciseLog.request.ExerciseLogsDeleteRequest;
 import com.levelupfit.mainbackend.dto.exerciseLog.request.ExerciseLogsGetRequest;
 import com.levelupfit.mainbackend.dto.exerciseLog.request.ExerciseLogsRequest;
 import com.levelupfit.mainbackend.repository.ExerciseLogsRepository;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ExerciseLogsService {
 
-    final ExerciseLogsRepository exerciseLogsRepository;
+    private final ExerciseLogsRepository exerciseLogsRepository;
 
-    //운동 기록 저장
-    public ApiResponse<ExerciseLogsDTO> saveExerciseLog(ExerciseLogsRequest request){
-        try{
+    /**
+     * 운동 기록 저장
+     */
+    @Transactional
+    public void saveExerciseLog(ExerciseLogsRequest request) {
+        String[] names = request.getName().split(",");
 
-            String[] nameArr = request.getName().split(",");
-
-            for(String name:nameArr){
-                ExerciseLogs exerciseLogs = ExerciseLogs.builder()
-                        .userId(request.getUserId())
-                        .name(name)
-                        .targetMuscle(request.getTargetMuscle())
-                        .feedback(request.getFeedback())
-                        .performedDate(request.getPerformedDate())
-                        .build();
-                exerciseLogsRepository.save(exerciseLogs);
-            }
-
-            return ApiResponse.ok(201, null);
-
-        } catch(Exception e){
-            return ApiResponse.fail(500, "기록 저장중 오류 발생");
+        for (String name : names) {
+            ExerciseLogs log = ExerciseLogs.of(
+                    request.getUserId(),
+                    name.trim(),
+                    request.getTargetMuscle(),
+                    request.getFeedback(),
+                    request.getPerformedDate()
+            );
+            exerciseLogsRepository.save(log);
         }
     }
     
-    //운동 기록 조회
-    public ApiResponse<List<ExerciseLogsDTO>> getExerciseLogs(ExerciseLogsGetRequest request){
-        try{
-            List<ExerciseLogsDTO> list = exerciseLogsRepository.findAllByUserId(request.getUserId())
-                    .stream()
-                    .map(ExerciseLogsDTO::fromExerciseLogs)
-                    .toList();
-            return ApiResponse.ok(200, list);
-            
-        } catch (Exception e){
-            return ApiResponse.fail(500, "기록 조회중 오류");
-        }
+    /**
+     * 운동 기록 조회
+     */
+    public List<ExerciseLogsDTO> getExerciseLogs(ExerciseLogsGetRequest request) {
+        return exerciseLogsRepository.findAllByUserId(request.getUserId())
+                .stream()
+                .map(ExerciseLogsDTO::fromExerciseLogs)
+                .toList();
     }
     
-    //운동 기록 삭제
-    public ApiResponse<Void> deleteExerciseLog(ExerciseLogsDeleteRequest request){
-        try{
-            exerciseLogsRepository.deleteById(request.getExerciseLogId());
-            return ApiResponse.ok(200, null);
-        } catch(Exception e){
-            return ApiResponse.fail(500, "삭제중 오류 발생");
-        }
+    /**
+     * 운동 기록 삭제
+     */
+    @Transactional
+    public void deleteExerciseLog(ExerciseLogsDeleteRequest request) {
+        exerciseLogsRepository.deleteById(request.getExerciseLogId());
     }
 }

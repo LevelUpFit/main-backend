@@ -6,6 +6,7 @@ import com.levelupfit.mainbackend.dto.exercise.MybatisExercise;
 import com.levelupfit.mainbackend.dto.exercise.request.ExerciseCreateRequest;
 import com.levelupfit.mainbackend.service.ExerciseService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,43 +18,39 @@ import java.util.List;
 public class ExercisesController {
     private final ExerciseService exerciseService;
 
+    /**
+     * 운동 생성
+     */
     @PostMapping("/create")
     public ResponseEntity<ApiResponse<ExerciseDTO>> createExercise(@RequestBody ExerciseCreateRequest dto) {
-        ApiResponse<ExerciseDTO> responseDTO = exerciseService.ExerciseCreate(dto);
-        if(responseDTO.isSuccess()) {
-            return ResponseEntity.ok(responseDTO);
-        } else {
-            return ResponseEntity.badRequest().body(responseDTO);
-        }
+        ExerciseDTO result = exerciseService.createExercise(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok(201, result));
     }
 
+    /**
+     * 모든 운동 조회
+     */
     @GetMapping
     public ResponseEntity<ApiResponse<List<ExerciseDTO>>> getExercise() {
-        ApiResponse<List<ExerciseDTO>> responseDTO = exerciseService.ExerciseFindAll();
-        if(responseDTO.isSuccess()) {
-            return ResponseEntity.ok(responseDTO);
-        } else {
-            return ResponseEntity.badRequest().body(responseDTO);
-        }
+        List<ExerciseDTO> result = exerciseService.findAllExercises();
+        return ResponseEntity.ok(ApiResponse.ok(result));
     }
 
+    /**
+     * 운동 단일 조회
+     */
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ExerciseDTO>> getExerciseById(@PathVariable int id) {
-        ApiResponse<ExerciseDTO> responseDTO = exerciseService.ExerciseFindById(id);
-        if(responseDTO.isSuccess()) {
-            return ResponseEntity.ok(responseDTO);
-        } else{
-            return ResponseEntity.badRequest().body(responseDTO);
-        }
+        ExerciseDTO result = exerciseService.findById(id);
+        return ResponseEntity.ok(ApiResponse.ok(result));
     }
 
+    /**
+     * 피드백 가능 운동 조회
+     */
     @GetMapping("/feedback-exercise")
     public ResponseEntity<ApiResponse<List<MybatisExercise>>> getFeedbackExercises() {
-        ApiResponse<List<MybatisExercise>> responseDTO = exerciseService.findFeedbackExercises();
-        if(responseDTO.isSuccess()) {
-            return ResponseEntity.ok(responseDTO);
-        } else {
-            return ResponseEntity.badRequest().body(responseDTO);
-        }
+        List<MybatisExercise> result = exerciseService.findFeedbackExercises();
+        return ResponseEntity.ok(ApiResponse.ok(result));
     }
 }

@@ -1,35 +1,47 @@
 package com.levelupfit.mainbackend.domain.exercise;
 
+import com.levelupfit.mainbackend.dto.exercise.request.ExerciseCreateRequest;
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
 @Getter
 @Setter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-@Table(name = "exercises")
+@Table(name = "exercise")
 public class Exercise {
 
+    private static final String DEFAULT_THUMBNAIL = "test";
+
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "exercise_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY) //이게 Serial 처리
     private int exerciseId;
 
-    @Column(name = "name")
+    @Column(nullable = false)
     private String name;
 
-    @Column(name = "description")
+    @Column(nullable = false)
     private String description;
 
-    @Column(name = "thumbnail_url")
-    private String thumbnailUrl;
-
-    @Column(name = "target_muscle", columnDefinition = "TEXT")
+    @Column(nullable = false)
     private String targetMuscle;
 
-    @Column(name = "feedback_available")
+    @Column(nullable = false)
+    private String thumbnailUrl;
+
+    @Column(nullable = false)
     private boolean feedbackAvailable;
 
+    public static Exercise of(ExerciseCreateRequest request) {
+        return Exercise.builder()
+                .name(request.getName())
+                .description(request.getDescription())
+                .targetMuscle(request.getTargetMuscle())
+                .thumbnailUrl(DEFAULT_THUMBNAIL)
+                .feedbackAvailable(false)
+                .build();
+    }
 }

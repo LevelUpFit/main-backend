@@ -44,5 +44,14 @@ management:
 server:
   port: 8081
 
+# 프로젝트 상수 설정
+app:
+  minio:
+    bucket:
+      profile: "levelupfit-profile"
+  default:
+    profile-image: "default.jpg"
+    thumbnail-path: "levelupfit-profile/exercise/"
+
 
 

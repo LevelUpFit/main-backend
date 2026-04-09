@@ -39,9 +39,14 @@ public class UserService {
     private final UserStrengthRepository userStrengthRepository;
     private final MinioService minioService;
 
-
     @Value("${DEFAULT_PROFILE_URL}")
     private String DEFAULT_PROFILE_URL;
+
+    @Value("${app.minio.bucket.profile}")
+    private String PROFILE_BUCKET;
+
+    @Value("${app.default.profile-image}")
+    private String DEFAULT_PROFILE_IMAGE;
 
     // 이메일 중복 체크
     public void checkEmail(CheckEmailDTO email) {
@@ -139,13 +144,13 @@ public class UserService {
     @Transactional
     public ApiResponse<Void> updateProfile(int userId, MultipartFile file) {
         User user = userRepository.findByUserid(userId);
-        if(!user.getProfile().equals("default.jpg")){
-            minioService.deleteFile("levelupfit-profile", "", user.getProfile());
+        if(!user.getProfile().equals(DEFAULT_PROFILE_IMAGE)){
+            minioService.deleteFile(PROFILE_BUCKET, "", user.getProfile());
         }
-        String profile = minioService.uploadFile("levelupfit-profile", "", file);
+        String profile = minioService.uploadFile(PROFILE_BUCKET, "", file);
 
         if(profile.isEmpty() || profile.isBlank()) {
-            user.setProfile("default.jpg");
+            user.setProfile(DEFAULT_PROFILE_IMAGE);
             return ApiResponse.fail(500, "프로필 수정 중 오류");
         }
         user.setProfile(profile);
@@ -226,13 +231,10 @@ public class UserService {
         formUserRepository.delete(formUser);
         userRepository.delete(user);
 
-        if(!profile.equals(DEFAULT_PROFILE_URL+"default.jpg")){
-            minioService.deleteFile("levelupfit-profile", "", profile);
+        if(!profile.equals(DEFAULT_PROFILE_IMAGE)){
+            minioService.deleteFile(PROFILE_BUCKET, "", profile);
         }
 
         return ApiResponse.ok();
     }
-
-
-
 }

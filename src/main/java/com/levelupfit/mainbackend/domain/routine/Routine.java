@@ -1,6 +1,6 @@
 package com.levelupfit.mainbackend.domain.routine;
 
-import com.levelupfit.mainbackend.domain.user.User;
+import com.levelupfit.mainbackend.dto.routine.request.RoutineCreateRequest;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -14,6 +14,9 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Table(name = "routines")
 public class Routine {
+
+    private static final String THUMB_BASE_PATH = "levelupfit-profile/exercise/";
+    private static final String DEFAULT_THUMB = THUMB_BASE_PATH + "default.png";
 
     @Id
     @Column(name="routines_id")
@@ -41,15 +44,12 @@ public class Routine {
     @Column(name = "created_at")
     private LocalDate createdAt;
 
-    @PrePersist //save() 할 때 불러와짐
+    @PrePersist
     public void setCreatedAt() {
-        this.createdAt = LocalDate.now(); // 현재 시간 설정 yyyy-mm-dd
+        this.createdAt = LocalDate.now();
     }
 
-    /**
-     * 루틴 생성 DTO를 기반으로 Routine 엔티티 생성
-     */
-    public static Routine of(com.levelupfit.mainbackend.dto.routine.request.RoutineCreateRequest request) {
+    public static Routine of(RoutineCreateRequest request) {
         return Routine.builder()
                 .userId(request.getUserId())
                 .name(request.getName())
@@ -61,15 +61,15 @@ public class Routine {
     }
 
     private static String generateThumbnailUrl(String targetMuscle) {
-        if (targetMuscle == null) return "levelupfit-profile/exercise/default.png";
+        if (targetMuscle == null) return DEFAULT_THUMB;
         
         return switch (targetMuscle) {
-            case "하체" -> "levelupfit-profile/exercise/leg.png";
-            case "가슴" -> "levelupfit-profile/exercise/chest.png";
-            case "어깨" -> "levelupfit-profile/exercise/shoulder.png";
-            case "팔" -> "levelupfit-profile/exercise/arm.png";
-            case "등" -> "levelupfit-profile/exercise/back.png";
-            default -> "levelupfit-profile/exercise/default.png";
+            case "하체" -> THUMB_BASE_PATH + "leg.png";
+            case "가슴" -> THUMB_BASE_PATH + "chest.png";
+            case "어깨" -> THUMB_BASE_PATH + "shoulder.png";
+            case "팔" -> THUMB_BASE_PATH + "arm.png";
+            case "등" -> THUMB_BASE_PATH + "back.png";
+            default -> DEFAULT_THUMB;
         };
     }
 }

@@ -62,13 +62,8 @@ public class UserController {
     // 로그인
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginRequestDTO dto){
-        ApiResponse<LoginResponse> response = userService.login(dto);
-
-        if(response.isSuccess()){
-            return ResponseEntity.status(HttpStatus.OK).body(response);
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-        }
+        LoginResponse response = userService.login(dto);
+        return ResponseEntity.ok(ApiResponse.ok(response));
     }
 
     // 카카오 로그인 URL 반환

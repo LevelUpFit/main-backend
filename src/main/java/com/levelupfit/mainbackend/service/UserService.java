@@ -85,28 +85,29 @@ public class UserService {
     }
 
     // 로그인 로직
-    public ApiResponse<LoginResponse> login(LoginRequestDTO dto){
+    public LoginResponse login(LoginRequestDTO dto) {
         String userEmail = dto.getEmail();
         String password = dto.getPwd();
 
-        if(userRepository.existsByEmail(userEmail)){
-            User user = userRepository.findByEmail(userEmail);
-            FormUser formUser = formUserRepository.findByUserId(user.getUserid());
-            if(bCryptPasswordEncoder.matches(password, formUser.getPasswd())){
-                LoginResponse response = new LoginResponse();
-                response.setUserId(user.getUserid());
-                response.setNickname(user.getNickname());
-                response.setProfile(user.getProfile());
-                response.setLevel(user.getLevel());
-                response.setAccessToken(user.getAccess_token());
-                response.setRefreshToken(user.getRefresh_token());
-                return ApiResponse.ok(response);
-            } else {
-                return ApiResponse.fail(401, "아이디 혹은 비밀번호가 일치하지 않습니다.");
-            }
-        } else {
-            return ApiResponse.fail(401, "아이디 혹은 비밀번호가 일치하지 않습니다.");
+        User user = userRepository.findByEmail(userEmail);
+        if (user == null) {
+            throw new BusinessException(ErrorCode.LOGIN_FAILED);
         }
+
+        FormUser formUser = formUserRepository.findByUserId(user.getUserid());
+        if (formUser == null || !bCryptPasswordEncoder.matches(password, formUser.getPasswd())) {
+            throw new BusinessException(ErrorCode.LOGIN_FAILED);
+        }
+
+        LoginResponse response = new LoginResponse();
+        response.setUserId(user.getUserid());
+        response.setNickname(user.getNickname());
+        response.setProfile(DEFAULT_PROFILE_URL + user.getProfile());
+        response.setLevel(user.getLevel());
+        response.setAccessToken(user.getAccess_token());
+        response.setRefreshToken(user.getRefresh_token());
+
+        return response;
     }
 
     // 3대 운동 저장

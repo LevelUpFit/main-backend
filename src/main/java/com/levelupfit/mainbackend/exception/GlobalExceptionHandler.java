@@ -14,16 +14,27 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
 
     /**
+     * 비즈니스 예외 처리
+     */
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ApiResponse<Void>> handleBusinessException(BusinessException e) {
+        log.warn("Business Exception: {}", e.getMessage());
+        ErrorCode errorCode = e.getErrorCode();
+
+        return ResponseEntity.status(errorCode.getStatus())
+                .body(ApiResponse.fail(errorCode.getStatus().value(), e.getMessage()));
+    }
+
+    /**
      * @Valid 또는 @Validated 검증 실패 시 발생하는 예외 처리
-     * 컨트롤러에서 BindingResult를 제거해도 이 핸들러가 자동으로 가로채서 응답합니다.
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<Void>> handleValidationException(MethodArgumentNotValidException e) {
         BindingResult bindingResult = e.getBindingResult();
-        String firstErrorMessage = bindingResult.getAllErrors().getFirst().getDefaultMessage();
-        
+        String firstErrorMessage = bindingResult.getAllErrors().get(0).getDefaultMessage();
+
         log.warn("Validation failed: {}", firstErrorMessage);
-        
+
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.fail(HttpStatus.BAD_REQUEST.value(), firstErrorMessage));
     }
@@ -34,8 +45,9 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleException(Exception e) {
         log.error("Unexpected error occurred: ", e);
-        
+
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.fail(HttpStatus.INTERNAL_SERVER_ERROR.value(), "서버 내부 오류가 발생했습니다."));
+                .body(ApiResponse.fail(HttpStatus.INTERNAL_SERVER_ERROR.value(), ErrorCode.INTERNAL_SERVER_ERROR.getMessage()));
     }
 }
+

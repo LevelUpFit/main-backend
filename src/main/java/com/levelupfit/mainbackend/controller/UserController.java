@@ -10,15 +10,11 @@ import com.levelupfit.mainbackend.service.MinioService;
 import com.levelupfit.mainbackend.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.ibatis.jdbc.Null;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,14 +25,14 @@ public class UserController {
     private final KakaoService kakaoService;
     private final MinioService minioService;
 
-    //이메일 중복확인
+    // 이메일 중복확인
     @PostMapping("/checkEmail")
-    public ResponseEntity<ApiResponse<Null>> checkEmail(@Valid @RequestBody CheckEmailDTO email, BindingResult result) {
+    public ResponseEntity<ApiResponse<Void>> checkEmail(@Valid @RequestBody CheckEmailDTO email, BindingResult result) {
         if (result.hasErrors()) {
             return ResponseEntity.badRequest()
-                    .body(ApiResponse.fail(result.getAllErrors().get(0).getDefaultMessage(),400));
+                    .body(ApiResponse.fail(400, result.getAllErrors().get(0).getDefaultMessage()));
         }
-        ApiResponse<Null> response = userService.checkEmail(email);
+        ApiResponse<Void> response = userService.checkEmail(email);
 
         if (response.isSuccess()) {
             return ResponseEntity.status(HttpStatus.OK).body(response);
@@ -45,10 +41,9 @@ public class UserController {
         }
     }
 
-    //form 회원가입
+    // 회원가입
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<String>> saveFormUser(@RequestBody RegisterRequest registerRequest) {
-
         ApiResponse<String> response = userService.saveFormUser(registerRequest);
 
         if(response.isSuccess()){
@@ -58,10 +53,10 @@ public class UserController {
         }
     }
 
-    //3대 운동 등록 (테스트 완)
+    // 3대 운동 등록
     @PostMapping("/strength")
-    public ResponseEntity<ApiResponse<Null>> saveStrength(@RequestBody UserStrengthDTO dto) {
-        ApiResponse<Null> response = userService.saveUserStrength(dto);
+    public ResponseEntity<ApiResponse<Void>> saveStrength(@RequestBody UserStrengthDTO dto) {
+        ApiResponse<Void> response = userService.saveUserStrength(dto);
         if(response.isSuccess()){
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } else{
@@ -69,9 +64,9 @@ public class UserController {
         }
     }
 
+    // 로그인
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginRequestDTO dto){
-
         ApiResponse<LoginResponse> response = userService.login(dto);
 
         if(response.isSuccess()){
@@ -81,14 +76,14 @@ public class UserController {
         }
     }
 
-    //카카오 로그인 페이지 처리
+    // 카카오 로그인 URL 반환
     @GetMapping("/kakao/login")
     public ResponseEntity<String> loginPage(){
         String kakaoLoginUrl = kakaoService.loginPage();
         return ResponseEntity.ok(kakaoLoginUrl);
     }
 
-    //카카오 로그인 처리가 이루어지는 곳
+    // 카카오 콜백 처리
     @GetMapping("/callback")
     public ResponseEntity<ApiResponse<LoginResponse>> checkUser(@RequestParam("code") String code) {
         ApiResponse<LoginResponse> response = kakaoService.handleKakaoLogin(code);
@@ -99,7 +94,7 @@ public class UserController {
         }
     }
 
-    //유저 정보 조회
+    // 유저 정보 조회
     @GetMapping("/getinfo/{userId}")
     public ResponseEntity<ApiResponse<LoginResponse>> getInfo(@PathVariable int userId){
         ApiResponse<LoginResponse> response = userService.getInfo(userId);
@@ -109,10 +104,10 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
-    //프로필 사진 변경
+    // 프로필 사진 변경
     @PatchMapping("/profile")
-    public ResponseEntity<ApiResponse<Null>> updateFormUser(@RequestParam MultipartFile profile, @RequestParam int userid) {
-        ApiResponse<Null> response = userService.updateProfile(userid,profile);
+    public ResponseEntity<ApiResponse<Void>> updateFormUser(@RequestParam MultipartFile profile, @RequestParam int userid) {
+        ApiResponse<Void> response = userService.updateProfile(userid, profile);
         if(response.isSuccess()) {
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } else{
@@ -120,10 +115,10 @@ public class UserController {
         }
     }
 
-    //운동 수준 변경
+    // 운동 수준 변경
     @PatchMapping("/level")
-    public ResponseEntity<ApiResponse<Null>> updateLevel(@RequestBody UpdateLevelDTO dto) {
-        ApiResponse<Null> response = userService.updateLevel(dto);
+    public ResponseEntity<ApiResponse<Void>> updateLevel(@RequestBody UpdateLevelDTO dto) {
+        ApiResponse<Void> response = userService.updateLevel(dto);
         if(response.isSuccess()) {
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } else {
@@ -131,10 +126,10 @@ public class UserController {
         }
     }
 
-    //닉네임 변경
+    // 닉네임 변경
     @PatchMapping("/nickname")
-    public ResponseEntity<ApiResponse<Null>> updateNickname(@RequestBody UpdateNicknameDTO dto) {
-        ApiResponse<Null> response = userService.updateNickname(dto);
+    public ResponseEntity<ApiResponse<Void>> updateNickname(@RequestBody UpdateNicknameDTO dto) {
+        ApiResponse<Void> response = userService.updateNickname(dto);
         if(response.isSuccess()) {
             return ResponseEntity.ok(response);
         } else {
@@ -142,10 +137,10 @@ public class UserController {
         }
     }
 
-    //3대 운동 변경
+    // 3대 운동 변경
     @PatchMapping("/strength")
-    public ResponseEntity<ApiResponse<Null>> updateStrength(@RequestBody UserStrengthDTO dto){
-        ApiResponse<Null> reponse = userService.updateStrength(dto);
+    public ResponseEntity<ApiResponse<Void>> updateStrength(@RequestBody UserStrengthDTO dto){
+        ApiResponse<Void> reponse = userService.updateStrength(dto);
         if(reponse.isSuccess()){
             return ResponseEntity.ok(reponse);
         } else {
@@ -153,16 +148,10 @@ public class UserController {
         }
     }
 
-    //이미지 업로드
-    @PostMapping("/upload")
-    public void test(MultipartFile file) {
-        minioService.uploadFile("levelupfit-profile","",file);
-    }
-
-    //계정 탈퇴
+    // 계정 탈퇴
     @DeleteMapping("/delete")
-    public ResponseEntity<ApiResponse<Null>> deleteUser(@RequestBody FormUserDTO dto) {
-        ApiResponse<Null> response = userService.deleteUser(dto);
+    public ResponseEntity<ApiResponse<Void>> deleteUser(@RequestBody FormUserDTO dto) {
+        ApiResponse<Void> response = userService.deleteUser(dto);
         if(response.isSuccess()){
             return ResponseEntity.ok(response);
         } else {
@@ -170,9 +159,10 @@ public class UserController {
         }
     }
 
+    // 비밀번호 변경
     @PatchMapping("/password")
-    public ResponseEntity<ApiResponse<Null>> updatePassword(@RequestBody ChangePwdRequestDTO dto) {
-        ApiResponse<Null> response = userService.updatePassword(dto);
+    public ResponseEntity<ApiResponse<Void>> updatePassword(@RequestBody ChangePwdRequestDTO dto) {
+        ApiResponse<Void> response = userService.updatePassword(dto);
         if(response.isSuccess()){
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } else{

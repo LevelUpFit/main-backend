@@ -44,13 +44,8 @@ public class UserController {
     // 회원가입
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<String>> saveFormUser(@RequestBody RegisterRequest registerRequest) {
-        ApiResponse<String> response = userService.saveFormUser(registerRequest);
-
-        if(response.isSuccess()){
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-        }
+        userService.saveFormUser(registerRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok(201, "회원가입 성공"));
     }
 
     // 3대 운동 등록

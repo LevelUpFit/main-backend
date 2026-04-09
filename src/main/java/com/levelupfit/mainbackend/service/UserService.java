@@ -8,6 +8,8 @@ import com.levelupfit.mainbackend.dto.user.*;
 import com.levelupfit.mainbackend.dto.user.request.ChangePwdRequestDTO;
 import com.levelupfit.mainbackend.dto.user.request.RegisterRequest;
 import com.levelupfit.mainbackend.dto.user.response.LoginResponse;
+import com.levelupfit.mainbackend.exception.BusinessException;
+import com.levelupfit.mainbackend.exception.ErrorCode;
 import com.levelupfit.mainbackend.mapper.FormUserMapper;
 import com.levelupfit.mainbackend.mapper.UserMapper;
 import com.levelupfit.mainbackend.repository.FormUserRepository;
@@ -52,45 +54,34 @@ public class UserService {
 
     // 폼 회원가입
     @Transactional
-    public ApiResponse<String> saveFormUser(RegisterRequest registerRequest) {
-        try {
-            boolean existingUser = userRepository.existsByEmail(registerRequest.getEmail());
-            if (!existingUser) {
-                String encodedPassword = bCryptPasswordEncoder.encode(registerRequest.getPwd());
-                String accessToken = jwtUtils.createAccessToken(registerRequest.getEmail());
-                String refreshToken = jwtUtils.createRefreshToken(registerRequest.getEmail());
-
-                User user = User.builder()
-                        .email(registerRequest.getEmail())
-                        .nickname("헬린이1")
-                        .dob(LocalDate.parse(registerRequest.getDob()))
-                        .level(registerRequest.getLevel())
-                        .gender(registerRequest.getGender())
-                        .profile("default.jpg")
-                        .access_token(accessToken)
-                        .refresh_token(refreshToken)
-                        .build();
-
-                User saveduser = userRepository.save(user);
-
-                FormUser formUser = FormUser.builder()
-                        .user(saveduser)
-                        .passwd(encodedPassword)
-                        .build();
-
-                formUserRepository.save(formUser);
-
-                return ApiResponse.ok(201, "");
-            }
-            else {
-                if(checkLinkForm(registerRequest.getEmail())){
-                    return ApiResponse.fail(400, "이메일 중복");
-                }
-                return ApiResponse.fail(400, "회원가입 중 오류 발생");
-            }
-        } catch (Exception e) {
-            return ApiResponse.fail(500, "회원가입 중 서버 오류");
+    public void saveFormUser(RegisterRequest registerRequest) {
+        if (userRepository.existsByEmail(registerRequest.getEmail())) {
+            throw new BusinessException(ErrorCode.EMAIL_DUPLICATION);
         }
+
+        String encodedPassword = bCryptPasswordEncoder.encode(registerRequest.getPwd());
+        String accessToken = jwtUtils.createAccessToken(registerRequest.getEmail());
+        String refreshToken = jwtUtils.createRefreshToken(registerRequest.getEmail());
+
+        User user = User.builder()
+                .email(registerRequest.getEmail())
+                .nickname("헬린이1")
+                .dob(LocalDate.parse(registerRequest.getDob()))
+                .level(registerRequest.getLevel())
+                .gender(registerRequest.getGender())
+                .profile("default.jpg")
+                .access_token(accessToken)
+                .refresh_token(refreshToken)
+                .build();
+
+        User savedUser = userRepository.save(user);
+
+        FormUser formUser = FormUser.builder()
+                .user(savedUser)
+                .passwd(encodedPassword)
+                .build();
+
+        formUserRepository.save(formUser);
     }
 
     // 로그인 로직

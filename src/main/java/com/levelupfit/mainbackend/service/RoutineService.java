@@ -1,107 +1,76 @@
 package com.levelupfit.mainbackend.service;
 
-
 import com.levelupfit.mainbackend.domain.routine.Routine;
-import com.levelupfit.mainbackend.dto.ApiResponse;
 import com.levelupfit.mainbackend.dto.routine.RoutineDTO;
 import com.levelupfit.mainbackend.dto.routine.request.RoutineCreateRequest;
 import com.levelupfit.mainbackend.dto.routine.request.RoutineDeleteRequest;
 import com.levelupfit.mainbackend.dto.routine.request.RoutinePatchRequest;
+import com.levelupfit.mainbackend.exception.BusinessException;
+import com.levelupfit.mainbackend.exception.ErrorCode;
 import com.levelupfit.mainbackend.repository.RoutineRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class RoutineService {
 
     private final RoutineRepository routineRepository;
 
-    //루틴 생성
-    public ApiResponse<RoutineDTO> createRoutine(RoutineCreateRequest routineCreateRequest) {
-        try{
-            String url = switch (routineCreateRequest.getTargetMuscle()) {
-                case "하체" -> "levelupfit-profile/exercise/leg.png";
-                case "가슴" -> "levelupfit-profile/exercise/chest.png";
-                case "어깨" -> "levelupfit-profile/exercise/shoulder.png";
-                case "팔" -> "levelupfit-profile/exercise/arm.png";
-                case "등" -> "levelupfit-profile/exercise/back.png";
-                default -> "levelupfit-profile/exercise/default.png";
-            };
-
-            Routine routine = Routine.builder()
-                    .userId(routineCreateRequest.getUserId())
-                    .name(routineCreateRequest.getName())
-                    .targetMuscle(routineCreateRequest.getTargetMuscle())
-                    .thumbnailUrl(url)
-                    .description(routineCreateRequest.getDescription())
-                    .difficulty(routineCreateRequest.getDifficulty())
-                    .build();
-
-            Routine createdRoutine = routineRepository.save(routine);
-
-            RoutineDTO dto = RoutineDTO.fromRoutine(createdRoutine);
-
-            return ApiResponse.ok(201, dto);
-
-        } catch (Exception e){
-            return ApiResponse.fail(500, "루틴 생성중 오류 발생");
-        }
+    /**
+     * 루틴 생성
+     */
+    @Transactional
+    public RoutineDTO createRoutine(RoutineCreateRequest request) {
+        Routine routine = Routine.of(request);
+        Routine savedRoutine = routineRepository.save(routine);
+        return RoutineDTO.fromRoutine(savedRoutine);
     }
   
-    //유저 ID로 루틴 조회
-    public ApiResponse<List<RoutineDTO>> getRoutineByUserId(Integer userid) {
-        try{
-            List<RoutineDTO> list = routineRepository.findByUserId(userid)
-                    .stream()
-                    .map(RoutineDTO::fromRoutine)
-                    .toList();
-
-            return ApiResponse.ok(200, list);
-        } catch (Exception e){
-            return ApiResponse.fail(500, "루틴 조회중 오류가 발생하였습니다");
-        }
+    /**
+     * 유저 ID로 루틴 조회
+     */
+    public List<RoutineDTO> getRoutineByUserId(Integer userId) {
+        return routineRepository.findByUserId(userId)
+                .stream()
+                .map(RoutineDTO::fromRoutine)
+                .toList();
     }
 
-    //기본 루틴 조회
-    public ApiResponse<List<RoutineDTO>> getRoutineDefault() {
-        try{
-            List<RoutineDTO> list = routineRepository.findByUserIdIsNull()
-                    .stream()
-                    .map(RoutineDTO::fromRoutine)
-                    .toList();
-            return ApiResponse.ok(200, list);
-        } catch (Exception e){
-            return ApiResponse.fail(500, "루틴 조회중 오류 발생");
-        }
+    /**
+     * 기본 루틴 조회 (userId가 null인 항목)
+     */
+    public List<RoutineDTO> getRoutineDefault() {
+        return routineRepository.findByUserIdIsNull()
+                .stream()
+                .map(RoutineDTO::fromRoutine)
+                .toList();
     }
 
-    //루틴 삭제
-    public ApiResponse<Void> deleteRoutine(RoutineDeleteRequest routineDeleteRequest) {
-        try{
-            routineRepository.deleteById(routineDeleteRequest.getRoutineId());
-            return ApiResponse.ok(201, null);
-        } catch (Exception e){
-            return ApiResponse.fail(500, "삭제중 오류 발생");
-        }
-    }
-
-    //루틴 수정
+    /**
+     * 루틴 삭제
+     */
     @Transactional
-    public ApiResponse<Void> patchRoutine(RoutinePatchRequest routinePatchRequest) {
-        try{
-            Routine routine = routineRepository.findByRoutineId(routinePatchRequest.getRoutineId());
-            routine.setName(routinePatchRequest.getName());
-            routine.setDescription(routinePatchRequest.getDescription());
-            routine.setDifficulty(routinePatchRequest.getDifficulty());
+    public void deleteRoutine(RoutineDeleteRequest request) {
+        routineRepository.deleteById(request.getRoutineId());
+    }
 
-            return ApiResponse.ok(200, null);
-
-        } catch (Exception e){
-            return ApiResponse.fail(500, "루틴 수정중 오류 발생");
+    /**
+     * 루틴 수정
+     */
+    @Transactional
+    public void patchRoutine(RoutinePatchRequest request) {
+        Routine routine = routineRepository.findByRoutineId(request.getRoutineId());
+        if (routine == null) {
+            // TODO: 필요한 경우 ROUTINE_NOT_FOUND 에러 코드 추가
+            throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR, "해당 루틴을 찾을 수 없습니다.");
         }
+        routine.setName(request.getName());
+        routine.setDescription(request.getDescription());
+        routine.setDifficulty(request.getDifficulty());
     }
 }

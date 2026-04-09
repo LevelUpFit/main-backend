@@ -46,5 +46,30 @@ public class Routine {
         this.createdAt = LocalDate.now(); // 현재 시간 설정 yyyy-mm-dd
     }
 
-    //private String image; 컬럼에 까먹고 추가 안함 나중에 추가 해야함
+    /**
+     * 루틴 생성 DTO를 기반으로 Routine 엔티티 생성
+     */
+    public static Routine of(com.levelupfit.mainbackend.dto.routine.request.RoutineCreateRequest request) {
+        return Routine.builder()
+                .userId(request.getUserId())
+                .name(request.getName())
+                .targetMuscle(request.getTargetMuscle())
+                .thumbnailUrl(generateThumbnailUrl(request.getTargetMuscle()))
+                .description(request.getDescription())
+                .difficulty(request.getDifficulty())
+                .build();
+    }
+
+    private static String generateThumbnailUrl(String targetMuscle) {
+        if (targetMuscle == null) return "levelupfit-profile/exercise/default.png";
+        
+        return switch (targetMuscle) {
+            case "하체" -> "levelupfit-profile/exercise/leg.png";
+            case "가슴" -> "levelupfit-profile/exercise/chest.png";
+            case "어깨" -> "levelupfit-profile/exercise/shoulder.png";
+            case "팔" -> "levelupfit-profile/exercise/arm.png";
+            case "등" -> "levelupfit-profile/exercise/back.png";
+            default -> "levelupfit-profile/exercise/default.png";
+        };
+    }
 }

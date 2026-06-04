@@ -48,6 +48,16 @@ public class JwtUtils {
 
     // 사용자 정보를 바탕으로 토큰 생성
     public String generateToken(UserDTO userDto) {
-        return createAccessToken(Integer.toString(userDto.getUser_id())); // user_id를 기반으로 accessToken 생성
+        return createAccessToken(Integer.toString(userDto.getUser_id()));
+    }
+
+    // 토큰에서 이메일(subject) 추출 — 만료 시 ExpiredJwtException, 위변조 시 JwtException 발생
+    public String getEmailFromToken(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
     }
 }

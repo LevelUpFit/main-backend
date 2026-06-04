@@ -172,7 +172,7 @@ public class KakaoService {
                     response.setNickname(saveduser.getNickname());
                     response.setProfile(saveduser.getProfile());
                     response.setLevel(saveduser.getLevel());
-                    response.setAccessToken(accessToken);
+                    response.setAccessToken(userAccessToken);
                     response.setRefreshToken(refreshToken);
 
                     return ApiResponse.ok(201, response);
